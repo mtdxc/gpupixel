@@ -83,16 +83,16 @@ endif()
 
 
 # Add platform source and header and lib link search path
-IF(${CURRENT_OS} STREQUAL "windows") 	
+IF(${CURRENT_OS} STREQUAL "windows")
 	set(CMAKE_SHARED_LIBRARY_PREFIX "")													# windows
 	# Source 
 	FILE(GLOB GLAD_SOURCE_FILE  "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glad/src/*.c" )
 	list(APPEND SOURCE_FILES ${GLAD_SOURCE_FILE})
+	add_subdirectory(third_party/glfw)
 
-	# link libs find path
-	LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw/lib-mingw-w64)
 ELSEIF(${CURRENT_OS} STREQUAL "linux" OR ${CURRENT_OS} STREQUAL "wasm")	
 	# Source 
+	add_subdirectory(third_party/glfw)
 	FILE(GLOB GLAD_SOURCE_FILE  "${CMAKE_CURRENT_SOURCE_DIR}/third_party/glad/src/*.c" )
 	list(APPEND SOURCE_FILES ${GLAD_SOURCE_FILE})
 ELSEIF(${CURRENT_OS} STREQUAL "macos" OR ${CURRENT_OS} STREQUAL "ios")						# ios and mac
@@ -208,7 +208,7 @@ ELSEIF(${CURRENT_OS} STREQUAL "windows")
 	TARGET_LINK_LIBRARIES(
 						${PROJECT_NAME} 
 						opengl32
-						glfw3
+						glfw
 						vnn_core
 						vnn_kit
 						vnn_face)
@@ -220,7 +220,7 @@ ELSEIF(${CURRENT_OS} STREQUAL "macos")
 						-framework CoreVideo  	\
 						-framework CoreGraphics \
 						-framework AVFoundation \
-						-framework CoreMedia
+						-framework CoreMedia \
 						-framework vnn_kit_osx \
 						-framework vnn_core_osx \
 						-framework vnn_face_osx"
