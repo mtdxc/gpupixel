@@ -110,7 +110,10 @@ using namespace gpupixel;
     // create filter
     targetRawOutput_ = TargetRawDataOutput::create();
     beauty_face_filter_ = BeautyFaceFilter::create();
-  
+    beauty_face_filter_->addTarget(targetRawOutput_);
+    targetRawOutput_->setPixelsCallbck([](const uint8_t* data, int width, int height, int64_t ts){
+      NSLog(@"got %dx%d & %d", width, height, ts);
+    });
     
     gpuPixelRawInput->addTarget(lipstick_filter_)
                        ->addTarget(blusher_filter_)
@@ -186,7 +189,7 @@ using namespace gpupixel;
       auto height = CVPixelBufferGetHeight(imageBuffer);
       auto stride = CVPixelBufferGetBytesPerRow(imageBuffer)/4;
       auto pixels = (const uint8_t *)CVPixelBufferGetBaseAddress(imageBuffer);
-      gpuPixelRawInput->uploadBytes(pixels, width, height, stride);
+      gpuPixelRawInput->uploadBytes(pixels, width, height, stride, Util::nowTimeMs());
       CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
     }
 }
