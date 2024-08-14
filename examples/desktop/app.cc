@@ -60,6 +60,26 @@ int main()
     target_view = std::make_shared<TargetView>();
 
     beauty_face_filter_ = BeautyFaceFilter::create();
+
+    struct Count {
+        int64_t tsPrev = Util::nowTimeMs();
+        int nFramePrev = 0; ///< 帧率统计
+        int nCbCount = 0;///< 出帧总数
+        int nFrames = 0; ///< 入帧总数
+    } state;
+    auto raw_target_filter_ = TargetRawDataOutput::create();
+    raw_target_filter_->setI420Callbck([&state](const uint8_t* data, int width, int height, int64_t ts){
+        // printf("got yuv %dx%d@%I64d\n", width, height, ts);
+        state.nFramePrev++;
+        state.nCbCount++;
+        int64_t delta = ts - state.tsPrev;
+        if (delta>1000) {
+            printf("%d input, %d output, %d fps\n", state.nFrames, state.nCbCount, state.nFramePrev);
+            state.nFramePrev = 0;
+            state.tsPrev = ts;
+        }
+    });
+    beauty_face_filter_->addTarget(raw_target_filter_);
  
 #if 0  
     gpuSourceImage->addTarget(beauty_face_filter_)
@@ -89,6 +109,7 @@ int main()
         
         // 
         // -----
+        state.nFrames++;
         gpuSourceImage->Render();
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

@@ -79,6 +79,6 @@ void SourceImage::Render() {
                            GPUPIXEL_FRAME_TYPE_RGBA8888);
   }
   
-  Source::proceed();
+  Source::proceed(true, Util::nowTimeMs());
 }
 
