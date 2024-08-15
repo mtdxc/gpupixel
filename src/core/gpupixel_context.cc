@@ -6,6 +6,7 @@
  */
 
 #include "gpupixel_context.h"
+#include <future>
 #include "util.h"
 
 #if defined(GPUPIXEL_IOS) || defined(GPUPIXEL_MAC)
@@ -119,6 +120,7 @@ void GPUPixelContext::destroy() {
 }
 
 void GPUPixelContext::init() {
+  _tid = std::this_thread::get_id();
   runSync([=] {
     Util::Log("INFO", "start init GPUPixelContext");
     this->createContext();
@@ -271,6 +273,7 @@ void GPUPixelContext::createContext() {
 }
 
 void GPUPixelContext::useAsCurrent() {
+    if(!getGLContext()) return ;
   #if defined(GPUPIXEL_IOS)
     if ([EAGLContext currentContext] != _eglContext) {
       [EAGLContext setCurrentContext:_eglContext];
@@ -332,19 +335,37 @@ void GPUPixelContext::releaseContext() {
   }
 #endif
 }
- 
+
+void GPUPixelContext::step() {
+  task_queue_->processOne();
+}
+
 void GPUPixelContext::runSync(std::function<void(void)> func) {
-  // todo fix android 
-#if defined(GPUPIXEL_ANDROID)
-  func();
+#if defined(GPUPIXEL_WIN) || defined(GPUPIXEL_LINUX)
+  if (isCurrentThread()) {
+    useAsCurrent();
+    func();
+    return ;
+  }
+  std::promise<void> promise;
+  auto future = promise.get_future();
+  task_queue_->add([&]() {
+      useAsCurrent();
+      func();
+      promise.set_value();
+  });
+  future.wait();
 #else
+  useAsCurrent();
+  func();
+#endif  
+}
+
+void GPUPixelContext::runAsync(std::function<void(void)> func) {
   task_queue_->add([=]() {
       useAsCurrent();
       func();
   });
-  task_queue_->processOne();
-#endif
-
 }
 
 NS_GPUPIXEL_END

@@ -116,6 +116,7 @@ int main()
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
+        GPUPixelContext::getInstance()->step();
     }
 
     
