@@ -36,10 +36,12 @@ class GPUPIXEL_API GPUPixelContext {
   void purge();
 
   void runSync(std::function<void(void)> func);
+  // 此函数暂时没用
   void runAsync(std::function<void(void)> func);
   void useAsCurrent(void);
   void presentBufferForDisplay();
- 
+  bool isCurrentThread() const {return std::this_thread::get_id() == _tid;}
+  void step();
 #if defined(GPUPIXEL_IOS)
   EAGLContext* getGLContext() const { return _eglContext; }
 #elif defined(GPUPIXEL_MAC)
@@ -72,7 +74,7 @@ class GPUPIXEL_API GPUPixelContext {
   FramebufferCache* _framebufferCache;
   GLProgram* _curShaderProgram;
   std::shared_ptr<LocalDispatchQueue> task_queue_;
-  
+  std::thread::id _tid;
 #if defined(GPUPIXEL_ANDROID)
   bool context_inited = false;
   int m_surfacewidth;
