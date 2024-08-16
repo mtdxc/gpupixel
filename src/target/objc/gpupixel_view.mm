@@ -71,7 +71,7 @@
     eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
     
 #else
-    [self setOpenGLContext:gpupixel::GPUPixelContext::getInstance()->getOpenGLContext()];
+    [self setOpenGLContext:gpupixel::GPUPixelContext::getInstance()->getGLContext()];
     if ([self respondsToSelector:@selector(setWantsBestResolutionOpenGLSurface:)])
     {
         [self  setWantsBestResolutionOpenGLSurface:YES];
@@ -142,7 +142,7 @@
         glGenRenderbuffers(1, &displayRenderbuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, displayRenderbuffer);
         
-        [gpupixel::GPUPixelContext::getInstance()->getEglContext() renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer*)self.layer];
+        [gpupixel::GPUPixelContext::getInstance()->getGLContext() renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer*)self.layer];
         
         glGenFramebuffers(1, &displayFramebuffer);
         glBindFramebuffer(GL_FRAMEBUFFER, displayFramebuffer);

@@ -41,11 +41,13 @@ class GPUPIXEL_API GPUPixelContext {
   void presentBufferForDisplay();
  
 #if defined(GPUPIXEL_IOS)
-  EAGLContext* getEglContext() const { return _eglContext; };
+  EAGLContext* getGLContext() const { return _eglContext; }
 #elif defined(GPUPIXEL_MAC)
-  NSOpenGLContext* getOpenGLContext() const { return imageProcessingContext; };
+  NSOpenGLContext* getGLContext() const { return imageProcessingContext; }
 #elif defined(GPUPIXEL_WIN) || defined(GPUPIXEL_LINUX)
-  GLFWwindow* GetGLContext() const { return gl_context_; };
+  GLFWwindow* getGLContext() const { return gl_context_; }
+#elif defined(GPUPIXEL_ANDROID)
+  _gpu_context_t* getGLContext(){ return m_gpu_context; }
 #endif
  
 

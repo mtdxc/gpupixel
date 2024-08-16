@@ -34,7 +34,7 @@ int main()
 {
     glfwInit();
 
-    GLFWwindow* window = GPUPixelContext::getInstance()->GetGLContext();
+    GLFWwindow* window = GPUPixelContext::getInstance()->getGLContext();
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;

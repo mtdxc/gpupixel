@@ -236,7 +236,7 @@ void TargetRawDataOutput::initTextureCache(int width, int height) {
   if (textureCache == NULL) {
     CVReturn err = CVOpenGLESTextureCacheCreate(
         kCFAllocatorDefault, NULL,
-        GPUPixelContext::getInstance()->getEglContext(), NULL, &textureCache);
+        GPUPixelContext::getInstance()->getGLContext(), NULL, &textureCache);
 
     if (err) {
       // todo(Jeayo)
