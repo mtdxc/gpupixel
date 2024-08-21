@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.pixpark.GPUPixelApp.databinding.ActivityMainBinding;
 import com.pixpark.gpupixel.GPUPixel;
+import com.pixpark.gpupixel.GPUPixelTargetRawDataOutput;
 import com.pixpark.gpupixel.filter.BeautyFaceFilter;
 import com.pixpark.gpupixel.filter.FaceReshapeFilter;
 import com.pixpark.gpupixel.GPUPixelSourceCamera;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private BeautyFaceFilter beautyFaceFilter;
     private FaceReshapeFilter faceReshapFilter;
     private LipstickFilter lipstickFilter;
+    private GPUPixelTargetRawDataOutput rawDataOutput;
     private SeekBar smooth_seekbar;
     private SeekBar whiteness_seekbar;
     private SeekBar face_reshap_seekbar;
@@ -170,6 +172,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         faceReshapFilter.addTarget(beautyFaceFilter);
         beautyFaceFilter.addTarget(surfaceView);
 
+        rawDataOutput = new GPUPixelTargetRawDataOutput();
+        rawDataOutput.setI420Callbck(new GPUPixelTargetRawDataOutput.RawOutputCallback() {
+            @Override
+            public void onBytes(byte[] bytes, int width, int height, long ts) {
+                Log.i(TAG, String.format("got frame %dx%d @ %d", width, height, ts));
+            }
+        });
+        beautyFaceFilter.addTarget(rawDataOutput);
         sourceCamera.setLandmarkCallbck(new GPUPixel.GPUPixelLandmarkCallback() {
             @Override
             public void onFaceLandmark(float[] landmarks) {

@@ -27,8 +27,35 @@ public class GPUPixelSourceRawInput extends GPUPixelSource {
     }
 
     public void uploadBytes(final int[] pixels, int width, int height, int stride) {
-        GPUPixel.nativeSourceRawInputUploadBytes(mNativeClassID, pixels, width, height, stride);
-        proceed(true, false);
+        GPUPixel.getInstance().runOnDraw(new Runnable() {
+            @Override
+            public void run() {
+                GPUPixel.nativeSourceRawInputUploadBytes(mNativeClassID, pixels, width, height, stride);
+            }
+        });
+        proceed(true, true);
     }
 
+    public void destroy() {
+        destroy(true);
+    }
+
+    public void destroy(boolean onGLThread) {
+        if (mNativeClassID != 0) {
+            if (onGLThread) {
+                GPUPixel.getInstance().runOnDraw(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mNativeClassID != 0) {
+                            GPUPixel.nativeSourceRawInputDestroy(mNativeClassID);
+                            mNativeClassID = 0;
+                        }
+                    }
+                });
+            } else {
+                GPUPixel.nativeSourceRawInputDestroy(mNativeClassID);
+                mNativeClassID = 0;
+            }
+        }
+    }
 }

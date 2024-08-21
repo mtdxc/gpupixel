@@ -12,11 +12,12 @@
 #include "source_camera.h"
 #include "source_image.h"
 #include "source_raw_data_input.h"
+#include "target_raw_data_output.h"
 #include "target_view.h"
 
 USING_NS_GPUPIXEL
 std::list<std::shared_ptr<Filter>>  filter_list_;
-
+std::map<jlong, std::shared_ptr<SourceRawDataInput>> raw_input_list_;
 extern "C" jlong Java_com_pixpark_gpupixel_GPUPixel_nativeSourceImageNew(
     JNIEnv* env,
     jclass) {
@@ -90,7 +91,18 @@ extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeSourceCameraSetFrame(
 extern "C" jlong Java_com_pixpark_gpupixel_GPUPixel_nativeSourceRawInputNew(
     JNIEnv* env,
     jclass) {
-  return 0;
+  auto input = SourceRawDataInput::create();
+  jlong ret = (jlong)input.get();
+  raw_input_list_[ret] = input;
+  return ret;
+};
+
+extern "C" void
+Java_com_pixpark_gpupixel_GPUPixel_nativeSourceRawInputDestroy(
+        JNIEnv* env,
+        jclass,
+        jlong classId) {
+    raw_input_list_.erase(classId);
 };
 
 extern "C" void
@@ -397,3 +409,56 @@ extern "C" void JNIEXPORT JNICALL JNI_OnUnLoad(JavaVM* jvm, void* reserved) {
 }
 
 #endif
+
+extern "C" jlong Java_com_pixpark_gpupixel_GPUPixelTargetRawDataOutput_nativeNew(
+        JNIEnv* env, jclass) {
+    auto ret = new TargetRawDataOutput();
+    return (uintptr_t)ret;
+};
+
+extern "C" void Java_com_pixpark_gpupixel_GPUPixelTargetRawDataOutput_nativeDestroy(
+        JNIEnv* env, jclass, jlong classId) {
+    delete ((TargetRawDataOutput*)classId);
+};
+
+class RawCbRef {
+    jobject ref_;
+    JNIEnv* env_;
+    jmethodID method_;
+public:
+    RawCbRef(JNIEnv* env, jobject obj):env_(env) {
+        ref_ = env->NewGlobalRef(obj);
+        jclass cls = env->GetObjectClass(ref_);
+        method_ = env->GetMethodID(cls, "onBytes", "([BIIJ)V");
+    }
+    void onBytes(const uint8_t* data, int width, int height, int64_t ts, float multi) {
+        int frameSize = width * height * multi;
+        jbyteArray jresult = env_->NewByteArray(frameSize);
+        env_->SetByteArrayRegion(jresult, 0, frameSize, (jbyte*)data);
+        env_->CallVoidMethod(ref_, method_, jresult, width, height, ts);
+        env_->DeleteLocalRef(jresult);
+    }
+    ~RawCbRef() {
+        if (env_ && ref_) {
+            env_->DeleteGlobalRef(ref_);
+            env_ = nullptr;
+            ref_ = nullptr;
+        }
+    }
+};
+
+extern "C" void Java_com_pixpark_gpupixel_GPUPixelTargetRawDataOutput_nativeSetI420Callback(
+    JNIEnv *env, jclass jcls, jlong thiz, jobject cb) {
+    auto ref = std::make_shared<RawCbRef>(env, cb);
+    ((TargetRawDataOutput*)thiz)->setI420Callbck([ref](const uint8_t* data, int width, int height, int64_t ts){
+        ref->onBytes(data, width, height, ts, 1.5);
+    });
+}
+
+extern "C" void Java_com_pixpark_gpupixel_GPUPixelTargetRawDataOutput_nativeSetPixelsCallback(
+    JNIEnv *env, jclass jcls, jlong thiz, jobject cb) {
+    auto ref = std::make_shared<RawCbRef>(env, cb);
+    ((TargetRawDataOutput*)thiz)->setPixelsCallbck([ref](const uint8_t* data, int width, int height, int64_t ts){
+        ref->onBytes(data, width, height, ts, 4);
+    });
+}
