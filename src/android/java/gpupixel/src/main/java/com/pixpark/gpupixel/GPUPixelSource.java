@@ -107,4 +107,23 @@ public abstract class GPUPixelSource {
     public interface ProcessedFrameDataCallback {
         void onResult(Bitmap result);
     }
+
+    private GPUPixel.GPUPixelLandmarkCallback landmarkCallback;
+    public void setLandmarkCallbck(GPUPixel.GPUPixelLandmarkCallback filter) {
+        landmarkCallback = filter;
+        Object object_this = this;
+        GPUPixel.getInstance().runOnDraw(new Runnable() {
+            @Override
+            public void run() {
+                GPUPixel.nativeSetLandmarkCallback(object_this, mNativeClassID);
+            }
+        });
+    }
+
+    // callback by native
+    public void onFaceLandmark(float[] landmarks) {
+        if (landmarkCallback != null) {
+            landmarkCallback.onFaceLandmark(landmarks);
+        }
+    }
 }

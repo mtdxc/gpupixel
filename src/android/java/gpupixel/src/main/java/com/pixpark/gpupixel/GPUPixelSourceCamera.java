@@ -28,11 +28,9 @@ public class GPUPixelSourceCamera extends GPUPixelSource implements Camera.Previ
     private Context mContext;
     private SurfaceTexture mSurfaceTexture = null;
     private GPUPixelSourceRawInput SourceRawDataInput = null;
-    private Object object_this;
-    private GPUPixel.GPUPixelLandmarkCallback landmarkCallback;
+
     public GPUPixelSourceCamera(Context context) {
         mContext = context;
-        object_this = this;
         if (mNativeClassID != 0) return;
         GPUPixel.getInstance().runOnDraw(new Runnable() {
             @Override
@@ -42,24 +40,6 @@ public class GPUPixelSourceCamera extends GPUPixelSource implements Camera.Previ
         });
 
         setUpCamera(mCurrentCameraId);
-    }
-
-    public void setLandmarkCallbck(GPUPixel.GPUPixelLandmarkCallback filter) {
-        landmarkCallback = filter;
-
-        GPUPixel.getInstance().runOnDraw(new Runnable() {
-            @Override
-            public void run() {
-                GPUPixel.nativeSetLandmarkCallback(object_this, mNativeClassID);
-            }
-        });
-    }
-
-    // callback by native
-    public void onFaceLandmark(float[] landmarks) {
-        if (landmarkCallback != null) {
-            landmarkCallback.onFaceLandmark(landmarks);
-        }
     }
 
     @Override
