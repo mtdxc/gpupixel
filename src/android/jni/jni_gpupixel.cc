@@ -366,7 +366,7 @@ extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeSetLandmarkCallback (
         jlong classId) {
 
     jobject globalSourceRef = env->NewGlobalRef(source);
-    ((SourceCamera*)classId)->RegLandmarkCallback([=](std::vector<float> landmarks) {
+    ((Source*)classId)->RegLandmarkCallback([=](std::vector<float> landmarks) {
       jclass cls = env->GetObjectClass(globalSourceRef);
       jmethodID methodID = env->GetMethodID(cls, "onFaceLandmark", "([F)V");
 
