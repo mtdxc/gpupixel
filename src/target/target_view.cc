@@ -12,18 +12,7 @@
 
 USING_NS_GPUPIXEL
 
-TargetView::TargetView()
-    : _viewWidth(0),
-      _viewHeight(0),
-      _fillMode(FillMode::PreserveAspectRatio),
-      _displayProgram(0),
-      _positionAttribLocation(0),
-      _texCoordAttribLocation(0),
-      _colorMapUniformLocation(0) {
-  _backgroundColor.r = 0.0;
-  _backgroundColor.g = 0.0;
-  _backgroundColor.b = 0.0;
-  _backgroundColor.a = 0.0;
+TargetView::TargetView() {
   init();
 }
 
@@ -38,10 +27,8 @@ void TargetView::init() {
   _displayProgram = GLProgram::createByShaderString(kDefaultVertexShader,
                                                     kDefaultFragmentShader);
   _positionAttribLocation = _displayProgram->getAttribLocation("position");
-  _texCoordAttribLocation =
-      _displayProgram->getAttribLocation("inputTextureCoordinate");
-  _colorMapUniformLocation =
-      _displayProgram->getUniformLocation("textureCoordinate");
+  _texCoordAttribLocation = _displayProgram->getAttribLocation("inputTextureCoordinate");
+  _colorMapUniformLocation = _displayProgram->getUniformLocation("textureCoordinate");
   GPUPixelContext::getInstance()->setActiveShaderProgram(_displayProgram);
   CHECK_GL(glEnableVertexAttribArray(_positionAttribLocation));
   CHECK_GL(glEnableVertexAttribArray(_texCoordAttribLocation));
@@ -100,13 +87,10 @@ void TargetView::update(int64_t frameTime) {
   CHECK_GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
   GPUPixelContext::getInstance()->setActiveShaderProgram(_displayProgram);
   CHECK_GL(glActiveTexture(GL_TEXTURE0));
-  CHECK_GL(glBindTexture(GL_TEXTURE_2D,
-                         _inputFramebuffers[0].frameBuffer->getTexture()));
+  CHECK_GL(glBindTexture(GL_TEXTURE_2D, _inputFramebuffers[0].frameBuffer->getTexture()));
   CHECK_GL(glUniform1i(_colorMapUniformLocation, 0));
-  CHECK_GL(glVertexAttribPointer(_positionAttribLocation, 2, GL_FLOAT, 0, 0,
-                                 _displayVertices));
-  CHECK_GL(glVertexAttribPointer(
-      _texCoordAttribLocation, 2, GL_FLOAT, 0, 0,
+  CHECK_GL(glVertexAttribPointer(_positionAttribLocation, 2, GL_FLOAT, 0, 0, _displayVertices));
+  CHECK_GL(glVertexAttribPointer(_texCoordAttribLocation, 2, GL_FLOAT, 0, 0,
       _getTexureCoordinate(_inputFramebuffers[0].rotationMode)));
   CHECK_GL(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 }
@@ -117,8 +101,7 @@ void TargetView::_updateDisplayVertices() {
     return;
   }
 
-  std::shared_ptr<Framebuffer> inputFramebuffer =
-      _inputFramebuffers[0].frameBuffer;
+  std::shared_ptr<Framebuffer> inputFramebuffer = _inputFramebuffers[0].frameBuffer;
   RotationMode inputRotation = _inputFramebuffers[0].rotationMode;
 
   int rotatedFramebufferWidth = inputFramebuffer->getWidth();
@@ -128,20 +111,17 @@ void TargetView::_updateDisplayVertices() {
     rotatedFramebufferHeight = inputFramebuffer->getWidth();
   }
 
-  float framebufferAspectRatio =
-      rotatedFramebufferHeight / (float)rotatedFramebufferWidth;
+  float framebufferAspectRatio = rotatedFramebufferHeight / (float)rotatedFramebufferWidth;
   float viewAspectRatio = _viewHeight / (float)_viewWidth;
 
   float insetFramebufferWidth = 0.0;
   float insetFramebufferHeight = 0.0;
   if (framebufferAspectRatio > viewAspectRatio) {
-    insetFramebufferWidth =
-        _viewHeight / (float)rotatedFramebufferHeight * rotatedFramebufferWidth;
+    insetFramebufferWidth = _viewHeight / (float)rotatedFramebufferHeight * rotatedFramebufferWidth;
     insetFramebufferHeight = _viewHeight;
   } else {
     insetFramebufferWidth = _viewWidth;
-    insetFramebufferHeight =
-        _viewWidth / (float)rotatedFramebufferWidth * rotatedFramebufferHeight;
+    insetFramebufferHeight = _viewWidth / (float)rotatedFramebufferWidth * rotatedFramebufferHeight;
   }
 
   float scaledWidth = 1.0;

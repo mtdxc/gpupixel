@@ -22,16 +22,13 @@ FaceDetector::FaceDetector() {
 #elif defined(GPUPIXEL_WIN) || defined(GPUPIXEL_MAC) || defined(GPUPIXEL_LINUX)
   auto model_path = Util::getResourcePath("face_pc[1.0.0].vnnmodel");
 #endif
-    const void *argv[] = {
-      model_path.c_str(),
-    };
-  
+  const void *argv[] = {model_path.c_str()};
   const int argc = sizeof(argv)/sizeof(argv[0]);
-  VNN_Result  ret = VNN_Create_Face(&vnn_handle_, argc, argv);
+  VNN_Result ret = VNN_Create_Face(&vnn_handle_, argc, argv);
 }
 
 FaceDetector::~FaceDetector() {
-  if(vnn_handle_ > 0)
+  if (vnn_handle_ > 0)
     VNN_Destroy_Face(&vnn_handle_);
 }
 
@@ -45,7 +42,7 @@ int FaceDetector::Detect(const uint8_t* data,
                     int height,
                     GPUPIXEL_MODE_FMT fmt,
                     GPUPIXEL_FRAME_TYPE type) {
-  if(vnn_handle_ == 0) {
+  if (vnn_handle_ == 0) {
     return -1;
   }
   
@@ -56,25 +53,27 @@ int FaceDetector::Detect(const uint8_t* data,
   input.height = height;
   input.channels = 4;
   switch (type) {
-    case GPUPIXEL_FRAME_TYPE_RGBA8888: {
+    case GPUPIXEL_FRAME_TYPE_RGBA8888:
       input.pix_fmt = VNN_PIX_FMT_BGRA8888; 
-    }
       break;
-    case GPUPIXEL_FRAME_TYPE_YUVI420: {
+    case GPUPIXEL_FRAME_TYPE_YUVI420:
       input.pix_fmt = VNN_PIX_FMT_YUVI420;
-    }
       break;
     default:
       break;
   }
 
   input.data = (VNNVoidPtr)data;
-  if(fmt == GPUPIXEL_MODE_FMT_VIDEO) {
+  switch (fmt)
+  {
+  case GPUPIXEL_MODE_FMT_VIDEO:
     input.mode_fmt = VNN_MODE_FMT_VIDEO;
-  }
-
-  if(fmt == GPUPIXEL_MODE_FMT_PICTURE) {
-      input.mode_fmt = VNN_MODE_FMT_PICTURE;
+    break;
+  case GPUPIXEL_MODE_FMT_PICTURE:
+    input.mode_fmt = VNN_MODE_FMT_PICTURE;
+    break;
+  default:
+    break;
   }
 
   input.ori_fmt = VNN_ORIENT_FMT_DEFAULT;
@@ -83,7 +82,7 @@ int FaceDetector::Detect(const uint8_t* data,
   VNN_Result ret = VNN_Apply_Face_CPU(vnn_handle_, &input, &output);
  
   std::vector<float> landmarks;
-  if(output.facesNum > 0) {
+  if (output.facesNum > 0) {
     for (int i = 0; i < output.facesArr[0].faceLandmarksNum; i++) {
       landmarks.push_back(output.facesArr[0].faceLandmarks[i].x);
       landmarks.push_back(output.facesArr[0].faceLandmarks[i].y);
@@ -122,7 +121,7 @@ int FaceDetector::Detect(const uint8_t* data,
   }
   
   // do callbck
-  for(auto cb : _face_detector_callbacks) {
+  for (auto cb : _face_detector_callbacks) {
     cb(landmarks);
   }
   return 0;

@@ -33,8 +33,8 @@ void processInput(GLFWwindow *window);
 int main()
 {
     glfwInit();
-     GLFWwindow* window = GPUPixelContext::getInstance()->GetGLContext();
-  
+
+    GLFWwindow* window = GPUPixelContext::getInstance()->GetGLContext();
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -45,7 +45,7 @@ int main()
     gladLoadGL();
     glfwMakeContextCurrent(window);
 
-   glfwShowWindow(window);
+    glfwShowWindow(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
     // create filter
@@ -59,24 +59,23 @@ int main()
     gpuSourceImage = SourceImage::create("demo.png");
     target_view = std::make_shared<TargetView>();
 
+    beauty_face_filter_ = BeautyFaceFilter::create();
+ 
+#if 0  
+    gpuSourceImage->addTarget(beauty_face_filter_)
+                  ->addTarget(target_view); 
+#else
     gpuSourceImage->RegLandmarkCallback([=](std::vector<float> landmarks) {
        lipstick_filter_->SetFaceLandmarks(landmarks);
        blusher_filter_->SetFaceLandmarks(landmarks);
        face_reshape_filter_->SetFaceLandmarks(landmarks);
      });
-
-    beauty_face_filter_ = BeautyFaceFilter::create();
- 
-    
-    // gpuSourceImage->addTarget(beauty_face_filter_)
-    //               ->addTarget(target_view); 
-   
     gpuSourceImage->addTarget(lipstick_filter_)
                     ->addTarget(blusher_filter_)
                     ->addTarget(face_reshape_filter_)
                     ->addTarget(beauty_face_filter_)
                     ->addTarget(target_view);
-                    
+#endif                    
     // 
     target_view->onSizeChanged(1280, 720);
     

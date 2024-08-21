@@ -13,11 +13,10 @@ NS_GPUPIXEL_BEGIN
 Target::Target(int inputNumber /* = 1*/) : _inputNum(inputNumber) {}
 
 Target::~Target() {
-  for (auto it = _inputFramebuffers.begin(); it != _inputFramebuffers.end();
-       ++it) {
+  for (auto it = _inputFramebuffers.begin(); it != _inputFramebuffers.end(); ++it) {
     if (it->second.frameBuffer) {
       it->second.frameBuffer.reset();
-      it->second.frameBuffer = 0;
+      // it->second.frameBuffer = 0;
     }
   }
   _inputFramebuffers.clear();
@@ -46,8 +45,7 @@ int Target::getNextAvailableTextureIndex() const {
 bool Target::isPrepared() const {
   int preparedNum = 0;
   int ignoreForPrepareNum = 0;
-  for (std::map<int, InputFrameBufferInfo>::const_iterator it =
-           _inputFramebuffers.begin();
+  for (std::map<int, InputFrameBufferInfo>::const_iterator it = _inputFramebuffers.begin();
        it != _inputFramebuffers.end(); ++it) {
     if (it->second.ignoreForPrepare) {
       ignoreForPrepareNum++;
@@ -63,12 +61,11 @@ bool Target::isPrepared() const {
 }
 
 void Target::unPrepear() {
-  for (auto it = _inputFramebuffers.begin(); it != _inputFramebuffers.end();
-       ++it) {
+  for (auto it = _inputFramebuffers.begin(); it != _inputFramebuffers.end(); ++it) {
     if (!it->second.ignoreForPrepare) {
       if (it->second.frameBuffer) {
         it->second.frameBuffer.reset();
-        it->second.frameBuffer = 0;
+        // it->second.frameBuffer = 0;
       }
     }
   }

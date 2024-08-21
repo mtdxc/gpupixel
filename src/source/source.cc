@@ -15,10 +15,7 @@
 
 NS_GPUPIXEL_BEGIN
 
-Source::Source()
-    : _framebuffer(0),
-      _outputRotation(RotationMode::NoRotation),
-      _framebufferScale(1.0) {}
+Source::Source() {}
 
 Source::~Source() {
   removeAllTargets();
@@ -29,12 +26,12 @@ std::shared_ptr<Source> Source::addTarget(std::shared_ptr<Target> target) {
   return addTarget(target, targetTexIdx);
 }
 
-std::shared_ptr<Source> Source::addTarget(std::shared_ptr<Target> target,
-                                          int texIdx) {
+std::shared_ptr<Source> Source::addTarget(std::shared_ptr<Target> target, int texIdx) {
   if (!hasTarget(target)) {
     _targets[target] = texIdx;
     target->setInputFramebuffer(_framebuffer, RotationMode::NoRotation, texIdx);
   }
+  // 返回target以支持链式调用
   return std::dynamic_pointer_cast<Source>(target);
 }
 
@@ -47,11 +44,7 @@ std::shared_ptr<Source> Source::addTarget(id<GPUPixelTarget> target) {
 #endif
 
 bool Source::hasTarget(const std::shared_ptr<Target> target) const {
-  if (_targets.find(target) != _targets.end()) {
-    return true;
-  } else {
-    return false;
-  }
+  return _targets.find(target) != _targets.end();
 }
 
 void Source::removeTarget(std::shared_ptr<Target> target) {
@@ -76,9 +69,8 @@ bool Source::proceed(bool bUpdateTargets /* = true*/,
 void Source::updateTargets(int64_t frameTime) {
   for (auto& it : _targets) {
     auto target = it.first;
-    target->setInputFramebuffer(_framebuffer, _outputRotation,
-                                _targets[target]);
-    if (target->isPrepared()) {
+    target->setInputFramebuffer(_framebuffer, _outputRotation, it.second);
+    if (target->isPrepared()) { // if target's all buffer has prepared
       target->update(frameTime);
       target->unPrepear();
     }
@@ -136,15 +128,6 @@ int Source::getRotatedFramebufferWidth() const {
     return 0;
   }
 }
- 
-int Source::RegLandmarkCallback(FaceDetectorCallback callback) {
-  if(_face_detector == nullptr) {
-    // init face detector
-    _face_detector = std::make_shared<FaceDetector>();
-  }
-
-  return _face_detector->RegCallback(callback);
-}
 
 int Source::getRotatedFramebufferHeight() const {
   if (_framebuffer) {
@@ -164,4 +147,12 @@ std::shared_ptr<Framebuffer> Source::getFramebuffer() const {
 
 void Source::releaseFramebuffer(bool returnToCache /* = true*/) {}
 
+int Source::RegLandmarkCallback(FaceDetectorCallback callback) {
+  if(_face_detector == nullptr) {
+    // init face detector
+    _face_detector = std::make_shared<FaceDetector>();
+  }
+
+  return _face_detector->RegCallback(callback);
+}
 NS_GPUPIXEL_END

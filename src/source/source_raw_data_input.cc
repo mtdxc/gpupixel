@@ -93,8 +93,7 @@ bool SourceRawDataInput::init() {
 
   //
   _filterPositionAttribute = _filterProgram->getAttribLocation("position");
-  _filterTexCoordAttribute =
-      _filterProgram->getAttribLocation("inputTextureCoordinate");
+  _filterTexCoordAttribute = _filterProgram->getAttribLocation("inputTextureCoordinate");
 
   _filterProgram->setUniformValue("yTexture", 0);
   _filterProgram->setUniformValue("uTexture", 1);
@@ -124,7 +123,7 @@ void SourceRawDataInput::uploadBytes(const uint8_t* pixels,
                                      int64_t ts) {
   GPUPixelContext::getInstance()->runSync([=] {
     if(_face_detector) {
-      _face_detector->Detect(pixels, width, height, GPUPIXEL_MODE_FMT_VIDEO,GPUPIXEL_FRAME_TYPE_RGBA8888);
+      _face_detector->Detect(pixels, width, height, GPUPIXEL_MODE_FMT_VIDEO, GPUPIXEL_FRAME_TYPE_RGBA8888);
     }
     genTextureWithRGBA(pixels, width, height, stride, ts); 
   });
@@ -216,8 +215,7 @@ int SourceRawDataInput::genTextureWithRGBA(const uint8_t* pixels,
                                            int64_t ts) {
   if (!_framebuffer || (_framebuffer->getWidth() != stride ||
                         _framebuffer->getHeight() != height)) {
-    _framebuffer =
-        GPUPixelContext::getInstance()->getFramebufferCache()->fetchFramebuffer(
+    _framebuffer = GPUPixelContext::getInstance()->getFramebufferCache()->fetchFramebuffer(
             stride, height);
   }
   this->setFramebuffer(_framebuffer, NoRotation);

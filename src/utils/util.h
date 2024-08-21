@@ -21,7 +21,7 @@ NS_GPUPIXEL_BEGIN
 class GPUPIXEL_API Util {
  public:
   static std::string str_format(const char* fmt, ...);
-  static void Log(const std::string& tag, std::string format, ...);
+  static void Log(const std::string& tag, const char* format, ...);
   static int64_t nowTimeMs();
 
   static std::string getResourcePath(std::string name);

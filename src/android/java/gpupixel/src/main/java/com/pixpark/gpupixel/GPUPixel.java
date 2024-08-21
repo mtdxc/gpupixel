@@ -158,6 +158,7 @@ public class GPUPixel {
     }
 
     public static void copyResource(Context context) {
+        // 将asserts中的资源拷贝到sdcard上
         String exPath = context.getExternalFilesDir(null).getAbsolutePath();
         copyAssetsToFiles(context, "resource", exPath + "/resource");
         resource_path = exPath + "/resource";
@@ -185,7 +186,7 @@ public class GPUPixel {
 
             } else {//如果是文件
                 File file = new File(newPath);
-                if(!file.exists()) {
+                if (!file.exists()) {
                     InputStream is = context.getAssets().open(oldPath);
                     FileOutputStream fos = new FileOutputStream(file);
                     byte[] buffer = new byte[1024];

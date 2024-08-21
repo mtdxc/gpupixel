@@ -1,10 +1,19 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 #import <CoreMedia/CoreMedia.h>
-
+// 判断是否要交换宽高
 #define GPUImageRotationSwapsWidthAndHeight(rotation) (((rotation) == kGPUImageRotateLeft) || ((rotation) == kGPUImageRotateRight) || ((rotation) == kGPUImageRotateRightFlipVertical) )
 
-typedef enum { kGPUImageNoRotation, kGPUImageRotateLeft, kGPUImageRotateRight, kGPUImageFlipVertical, kGPUImageFlipHorizonal, kGPUImageRotateRightFlipVertical, kGPUImageRotateRightFlipHorizontal, kGPUImageRotate180 } GPUImageRotationMode;
+typedef enum { 
+    kGPUImageNoRotation, 
+    kGPUImageRotateLeft, 
+    kGPUImageRotateRight, 
+    kGPUImageFlipVertical, 
+    kGPUImageFlipHorizonal, 
+    kGPUImageRotateRightFlipVertical, 
+    kGPUImageRotateRightFlipHorizontal, 
+    kGPUImageRotate180 
+} GPUImageRotationMode;
 
 //Delegate Protocal for Face Detection.
 @protocol GPUImageVideoCameraDelegate <NSObject>

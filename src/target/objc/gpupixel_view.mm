@@ -114,13 +114,11 @@
 - (void)reshape {
     [super reshape];
     CGSize viewSize = self.bounds.size;
-    if ([self respondsToSelector:@selector(convertSizeToBacking:)])
-    {
+    if ([self respondsToSelector:@selector(convertSizeToBacking:)]) {
         viewSize = [self convertSizeToBacking:self.bounds.size];
     }
     
-    if ( (_sizeInPixels.width == viewSize.width) && (_sizeInPixels.height == viewSize.height) )
-    {
+    if ( (_sizeInPixels.width == viewSize.width) && (_sizeInPixels.height == viewSize.height) ) {
         return;
     }
    

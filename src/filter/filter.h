@@ -16,7 +16,8 @@
 
 NS_GPUPIXEL_BEGIN
 const std::string kDefaultVertexShader = R"(
-    attribute vec4 position; attribute vec4 inputTextureCoordinate;
+    attribute vec4 position; 
+    attribute vec4 inputTextureCoordinate;
 
     varying vec2 textureCoordinate;
 
@@ -27,14 +28,16 @@ const std::string kDefaultVertexShader = R"(
 
 #if defined(GPUPIXEL_IOS) || defined(GPUPIXEL_ANDROID)
 GPUPIXEL_API const std::string kDefaultFragmentShader = R"(
-    varying highp vec2 textureCoordinate; uniform sampler2D inputImageTexture;
+    varying highp vec2 textureCoordinate; 
+    uniform sampler2D inputImageTexture;
 
     void main() {
       gl_FragColor = texture2D(inputImageTexture, textureCoordinate);
     })";
 #elif defined(GPUPIXEL_MAC) || defined(GPUPIXEL_WIN) || defined(GPUPIXEL_LINUX)
 const std::string kDefaultFragmentShader = R"(
-    varying vec2 textureCoordinate; uniform sampler2D inputImageTexture;
+    varying vec2 textureCoordinate; 
+    uniform sampler2D inputImageTexture;
 
     void main() {
       gl_FragColor = texture2D(inputImageTexture, textureCoordinate);
@@ -62,10 +65,7 @@ class GPUPIXEL_API Filter : public Source, public Target {
       const std::string& fragmentShaderSource,
       int inputNumber = 1);
 
-  void setFilterClassName(const std::string filterClassName) {
-    _filterClassName = filterClassName;
-  }
-
+  void setFilterClassName(const std::string& val) { _filterClassName = val; }
   std::string getFilterClassName() const { return _filterClassName; };
 
   virtual void update(int64_t frameTime) override;
@@ -86,7 +86,7 @@ class GPUPIXEL_API Filter : public Source, public Target {
                         const std::string& comment = "",
                         std::function<void(float&)> setCallback = 0);
 
-bool registerProperty(
+  bool registerProperty(
         const std::string& name,
         std::vector<float> defaultValue,
         const std::string& comment /* = ""*/,
@@ -113,14 +113,14 @@ bool registerProperty(
 
   bool hasProperty(const std::string& name);
 
-  bool hasProperty(const std::string& name, const std::string type);
+  bool hasProperty(const std::string& name, const std::string& type);
 
   bool getPropertyComment(const std::string& name, std::string& retComment);
 
   bool getPropertyType(const std::string& name, std::string& retType);
 
  protected:
-  GLProgram* _filterProgram;
+  GLProgram* _filterProgram = nullptr;
   GLuint _filterPositionAttribute;
   std::string _filterClassName;
   struct {
@@ -128,7 +128,7 @@ bool registerProperty(
     float g;
     float b;
     float a;
-  } _backgroundColor;
+  } _backgroundColor = {0.0f, 0.0f, 0.0f, 1.0f};
 
   Filter();
 
@@ -162,8 +162,7 @@ bool registerProperty(
   };
   std::map<std::string, VectorProperty> _vectorProperties;
 
-
-    struct StringProperty : Property {
+  struct StringProperty : Property {
     std::string value;
     std::function<void(std::string&)> setCallback;
   };

@@ -132,6 +132,7 @@ public class GPUPixelView extends FrameLayout implements GPUPixelTarget {
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
             super.surfaceChanged(holder, format, w, h);
+            // 通知c++层大小变化了
             host.onSurfaceSizeChanged(w, h);
         }
 

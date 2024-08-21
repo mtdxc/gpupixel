@@ -22,20 +22,15 @@ std::shared_ptr<Framebuffer> FramebufferCache::fetchFramebuffer(
     bool onlyTexture /* = false*/,
     const TextureAttributes textureAttributes /* = defaultTextureAttribure*/) {
   std::shared_ptr<Framebuffer> framebufferFromCache;
-  std::string lookupHash =
-      _getHash(width, height, onlyTexture, textureAttributes);
+  std::string lookupHash = _getHash(width, height, onlyTexture, textureAttributes);
   int numberOfMatchingFramebuffers = 0;
   if (_framebufferTypeCounts.find(lookupHash) != _framebufferTypeCounts.end()) {
     numberOfMatchingFramebuffers = _framebufferTypeCounts[lookupHash];
   }
-  if (numberOfMatchingFramebuffers < 1) {
-    framebufferFromCache = std::shared_ptr<Framebuffer>(
-        new Framebuffer(width, height, onlyTexture, textureAttributes));
-  } else {
+  if (numberOfMatchingFramebuffers) {
     int curFramebufferId = numberOfMatchingFramebuffers - 1;
     while (!framebufferFromCache && curFramebufferId >= 0) {
-      std::string framebufferHash =
-          Util::str_format("%s-%ld", lookupHash.c_str(), curFramebufferId);
+      std::string framebufferHash = Util::str_format("%s-%ld", lookupHash.c_str(), curFramebufferId);
       if (_framebuffers.find(framebufferHash) != _framebuffers.end()) {
         framebufferFromCache = _framebuffers[framebufferHash];
         _framebuffers.erase(framebufferHash);
@@ -47,26 +42,21 @@ std::shared_ptr<Framebuffer> FramebufferCache::fetchFramebuffer(
     curFramebufferId++;
     _framebufferTypeCounts[lookupHash] = curFramebufferId;
 
-    if (!framebufferFromCache) {
-      framebufferFromCache = std::shared_ptr<Framebuffer>(
-          new Framebuffer(width, height, onlyTexture, textureAttributes));
-    }
+  }
+  if (!framebufferFromCache) {
+    framebufferFromCache = std::shared_ptr<Framebuffer>(
+        new Framebuffer(width, height, onlyTexture, textureAttributes));
   }
 
   return framebufferFromCache;
 }
 
-void FramebufferCache::returnFramebuffer(
-    std::shared_ptr<Framebuffer> framebuffer) {
+void FramebufferCache::returnFramebuffer(std::shared_ptr<Framebuffer> framebuffer) {
   if (framebuffer == 0) {
     return;
   }
-  int width = framebuffer->getWidth();
-  int height = framebuffer->getHeight();
-  const TextureAttributes& textureAttributes =
-      framebuffer->getTextureAttributes();
-  std::string lookupHash = _getHash(
-      width, height, !framebuffer->hasFramebuffer(), textureAttributes);
+  std::string lookupHash = _getHash(framebuffer->getWidth(), framebuffer->getHeight(), 
+    !framebuffer->hasFramebuffer(), framebuffer->getTextureAttributes());
   int numberOfMatchingFramebuffers = 0;
   if (_framebufferTypeCounts.find(lookupHash) != _framebufferTypeCounts.end()) {
     numberOfMatchingFramebuffers = _framebufferTypeCounts[lookupHash];

@@ -57,7 +57,7 @@ public class GPUPixelSourceCamera extends GPUPixelSource implements Camera.Previ
 
     // callback by native
     public void onFaceLandmark(float[] landmarks) {
-        if(landmarkCallback != null) {
+        if (landmarkCallback != null) {
             landmarkCallback.onFaceLandmark(landmarks);
         }
     }

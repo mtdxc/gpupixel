@@ -41,10 +41,8 @@ using namespace gpupixel;
 - (void)viewDidLoad {
     [super viewDidLoad];
 
- 
     self.levelSlider.continuous = YES;
  
-
     // init video filter
     [self initVideoFilter];
     self.videoCamera = [[VideoCameraManager alloc] initWithSessionPreset:AVCaptureSessionPreset1280x720 cameraDevice:nil];
@@ -93,6 +91,7 @@ using namespace gpupixel;
 -(void) initVideoFilter {
   gpupixel::GPUPixelContext::getInstance()->runSync([&] {
     gpuPixelRawInput = SourceRawDataInput::create();
+    // create and add GPUPixelView
     gpuPixelView = [[GPUPixelView alloc] initWithFrame: self.view.frame];
     [self.view addSubview:gpuPixelView positioned:NSWindowBelow relativeTo:nil];
  
@@ -162,7 +161,7 @@ using namespace gpupixel;
     CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     CVPixelBufferLockBaseAddress(imageBuffer, 0);
     bool yuv = false;
-    if(yuv) {
+    if (yuv) {
         CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
         // 获取采集的数据
         CVPixelBufferLockBaseAddress(imageBuffer, 0);
@@ -172,13 +171,14 @@ using namespace gpupixel;
         size_t strideUV = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 1);
         size_t width = CVPixelBufferGetWidth(imageBuffer);
         size_t height = CVPixelBufferGetHeight(imageBuffer);
-        
-//        [self.beautyfaceView renderNV12:dataY
-//                                 withStrideY:strideY
-//                                  withDataUV:dataUV
-//                                withStrideUV:strideUV
-//                                   withWidth:width
-//                                  withHeight:height];
+        gpuPixelRawInput->uploadBytes(width,
+                                height, 
+                                dataY,
+                                strideY, 
+                                dataUV, 
+                                strideUV,
+                                dataUV + width * height / 4,
+                                strideUV);
         CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
     } else {
       CVPixelBufferLockBaseAddress(imageBuffer, 0);

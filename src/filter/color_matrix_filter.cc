@@ -56,8 +56,7 @@ bool ColorMatrixFilter::init() {
   }
 
   registerProperty("intensity", _intensity,
-                   "The percentage of color applied by color matrix with range "
-                   "between 0 and 1.",
+                   "The percentage of color applied by color matrix with range between 0 and 1.",
                    [this](float& intensity) {
                      if (intensity > 1.0) {
                        intensity = 1.0;

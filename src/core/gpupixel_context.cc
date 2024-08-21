@@ -160,10 +160,8 @@ void GPUPixelContext::createContext() {
       24,
       0};
 
-  _pixelFormat =
-      [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes];
-  imageProcessingContext =
-      [[NSOpenGLContext alloc] initWithFormat:_pixelFormat shareContext:nil];
+  _pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelFormatAttributes];
+  imageProcessingContext = [[NSOpenGLContext alloc] initWithFormat:_pixelFormat shareContext:nil];
 
   GLint interval = 0;
   [imageProcessingContext makeCurrentContext];
@@ -245,8 +243,7 @@ void GPUPixelContext::createContext() {
   }
   // info_log("Create Surface width:%d height:%d", m_surfacewidth,
   // m_surfaceheight);
-  Util::Log("INFO", "Create Surface width:%d height:%d", m_surfacewidth,
-            m_surfaceheight);
+  Util::Log("INFO", "Create Surface width:%d height:%d", m_surfacewidth, m_surfaceheight);
 #elif defined(GPUPIXEL_WIN) || defined(GPUPIXEL_LINUX)
   int ret = glfwInit();
 
@@ -322,8 +319,7 @@ void GPUPixelContext::releaseContext() {
       eglDestroySurface(m_gpu_context->egldisplay, m_gpu_context->eglsurface);
     }
 
-    eglMakeCurrent(m_gpu_context->egldisplay, EGL_NO_SURFACE, EGL_NO_SURFACE,
-                   EGL_NO_CONTEXT);
+    eglMakeCurrent(m_gpu_context->egldisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     if (!eglTerminate(m_gpu_context->egldisplay)) {
       // err_log("Free egldisplay error!");
       Util::Log("ERROR", "Free egldisplay Error!");
