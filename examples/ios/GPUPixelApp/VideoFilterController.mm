@@ -84,14 +84,11 @@ using namespace gpupixel;
 
   // 设置最小值
   self.slider.minimumValue = 0;
-
   self.slider.maximumValue = 10;
   self.slider.value = 0;
   [self.slider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
 
   [self.view addSubview:self.slider];
-  
- 
 }
 
 -(void)sliderValueChanged:(UISlider*) slider {
@@ -130,16 +127,15 @@ using namespace gpupixel;
 
 - (void)viewWillDisappear:(BOOL)animated {
   [self.capturer stopCapture];
-  
   [super viewWillDisappear:animated];
 }
 
 -(void) initVideoFilter {
   gpupixel::GPUPixelContext::getInstance()->runSync([&] {
     gpuPixelRawInput = SourceRawDataInput::create();
+
     gpuPixelView = [[GPUPixelView alloc] initWithFrame:self.view.frame];
     [self.view addSubview:gpuPixelView];
- 
   
     lipstick_filter_ = LipstickFilter::create();
     blusher_filter_ = BlusherFilter::create();
@@ -211,7 +207,14 @@ using namespace gpupixel;
       size_t strideUV = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 1);
       size_t width = CVPixelBufferGetWidth(imageBuffer);
       size_t height = CVPixelBufferGetHeight(imageBuffer);
-
+      gpuPixelRawInput->uploadBytes(width,
+                              height, 
+                              dataY,
+                              strideY, 
+                              dataUV, 
+                              strideUV,
+                              dataUV + width * height / 4,
+                              strideUV);
       // todo render nv12
       CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
     } else {

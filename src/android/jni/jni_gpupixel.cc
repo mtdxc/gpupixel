@@ -40,14 +40,13 @@ extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeSourceImageSetImage(
     jclass,
     jlong classId,
     jobject bitmap) {
-  char* pData = 0;
   AndroidBitmapInfo info;
-  void* pixels;
   if ((AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
     // ERROR
     return;
   }
-
+  
+  void* pixels;
   if ((AndroidBitmap_lockPixels(env, bitmap, &pixels)) >= 0) {
     ((SourceImage*)classId)->init(info.width, info.height, 4, (const unsigned char *)pixels);
   }
@@ -84,8 +83,7 @@ extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeSourceCameraSetFrame(
     jintArray jdata,
     jint rotation) {
     jint *data = env->GetIntArrayElements(jdata, NULL);
-  ((SourceCamera*)classId)
-      ->setFrameData(width, height, data, (RotationMode)rotation);
+    ((SourceCamera*)classId)->setFrameData(width, height, data, (RotationMode)rotation);
     env->ReleaseIntArrayElements(jdata, data, 0);
 };
 
@@ -187,18 +185,16 @@ Java_com_pixpark_gpupixel_GPUPixel_nativeSourceCaptureAProcessedFrameData(
     jlong upToFilterClassId,
     jint width,
     jint height) {
-  unsigned char* processedFrameData =
-      ((Source*)classId)
-          ->captureAProcessedFrameData(
-              std::shared_ptr<Filter>((Filter*)upToFilterClassId), width,
-              height);
+  unsigned char* processedFrameData = ((Source*)classId)->captureAProcessedFrameData(
+    std::shared_ptr<Filter>((Filter*)upToFilterClassId), width, height);
+
   int frameSize = width * height * 4 * sizeof(unsigned char);
 
   jbyteArray jresult = NULL;
   if (processedFrameData) {
-    jbyte* by = (jbyte*)processedFrameData;
+
     jresult = env->NewByteArray(frameSize);
-    env->SetByteArrayRegion(jresult, 0, frameSize, by);
+    env->SetByteArrayRegion(jresult, 0, frameSize, (jbyte*)processedFrameData);
     delete[] processedFrameData;
     processedFrameData = 0;
   }
@@ -247,12 +243,9 @@ extern "C" jlong Java_com_pixpark_gpupixel_GPUPixel_nativeFilterCreate(
     JNIEnv* env,
     jclass obj,
     jstring jFilterClassName) {
-  const char* filterClassName = env->GetStringUTFChars(jFilterClassName, 0);
-
-  auto ft = Filter::create(filterClassName);
+  auto ft = Filter::create(JavaToStdString(env, jFilterClassName));
   filter_list_.push_back(ft);
   jlong ret = (jlong)ft.get();
-  env->ReleaseStringUTFChars(jFilterClassName, filterClassName);
   return ret;
 };
 
@@ -280,9 +273,7 @@ extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeFilterSetPropertyFloat(
     jlong classId,
     jstring jProperty,
     jfloat value) {
-  const char* property = env->GetStringUTFChars(jProperty, 0);
-  ((Filter*)classId)->setProperty(property, value);
-  env->ReleaseStringUTFChars(jProperty, property);
+  ((Filter*)classId)->setProperty(JavaToStdString(env, jProperty), value);
 };
 
 extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeFilterSetPropertyInt(
@@ -291,9 +282,7 @@ extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeFilterSetPropertyInt(
     jlong classId,
     jstring jProperty,
     jint value) {
-  const char* property = env->GetStringUTFChars(jProperty, 0);
-  ((Filter*)classId)->setProperty(property, value);
-  env->ReleaseStringUTFChars(jProperty, property);
+  ((Filter*)classId)->setProperty(JavaToStdString(env, jProperty), value);
 };
 
 extern "C" void
@@ -303,11 +292,7 @@ Java_com_pixpark_gpupixel_GPUPixel_nativeFilterSetPropertyString(
     jlong classId,
     jstring jProperty,
     jstring jValue) {
-  const char* property = env->GetStringUTFChars(jProperty, 0);
-  const char* value = env->GetStringUTFChars(jValue, 0);
-  ((Filter*)classId)->setProperty(property, value);
-  env->ReleaseStringUTFChars(jProperty, property);
-  env->ReleaseStringUTFChars(jValue, value);
+  ((Filter*)classId)->setProperty(JavaToStdString(env, jProperty), JavaToStdString(env, jValue));
 };
 
 extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeContextInit(
@@ -369,9 +354,9 @@ extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeSetLandmarkCallback (
         jlong classId) {
 
     jobject globalSourceRef = env->NewGlobalRef(source);
-  ((SourceCamera*)classId)->RegLandmarkCallback([=](std::vector<float> landmarks) {
+    ((SourceCamera*)classId)->RegLandmarkCallback([=](std::vector<float> landmarks) {
       jclass cls = env->GetObjectClass(globalSourceRef);
-    jmethodID methodID = env->GetMethodID(cls, "onFaceLandmark", "([F)V");
+      jmethodID methodID = env->GetMethodID(cls, "onFaceLandmark", "([F)V");
 
       jfloatArray arr = env->NewFloatArray(landmarks.size());
       env->SetFloatArrayRegion( arr, 0, landmarks.size(), landmarks.data());
@@ -390,17 +375,14 @@ Java_com_pixpark_gpupixel_GPUPixel_nativeFilterSetPropertyFloatArray(JNIEnv *env
                                                                      jlong class_id,
                                                                      jstring jProperty,
                                                                      jfloatArray jarray) {
-    const char* property = env->GetStringUTFChars(jProperty, 0);
     jsize length = env->GetArrayLength(jarray);
-
     // 获取指向原始Java数组的指针
     jfloat* c_array = env->GetFloatArrayElements(jarray, nullptr);
     std::vector<float> vector;
     for(int i = 0; i < length; i++) {
         vector.push_back(c_array[i]);
     }
-    ((Filter*)class_id)->setProperty(property, vector);
-    env->ReleaseStringUTFChars(jProperty, property);
+    ((Filter*)class_id)->setProperty(JavaToStdString(env, jProperty), vector);
     // 释放Java数组的内存
     env->ReleaseFloatArrayElements(jarray, c_array, JNI_ABORT);
 }

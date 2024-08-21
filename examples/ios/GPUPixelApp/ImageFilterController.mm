@@ -84,9 +84,7 @@ using namespace gpupixel;
   [self.view addSubview:self.slider];
   
   
-  _displayLink =
-      [CADisplayLink displayLinkWithTarget:self
-                                  selector:@selector(displayLinkDidFire:)];
+  _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkDidFire:)];
   _displayLink.paused = YES;
 #if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_10_0
   _displayLink.preferredFramesPerSecond = 30;
@@ -107,11 +105,9 @@ using namespace gpupixel;
     gpuPixelView = [[GPUPixelView alloc] initWithFrame:self.view.frame];
     [self.view addSubview:gpuPixelView];
     
-    
     lipstick_filter_ = LipstickFilter::create();
     blusher_filter_ = BlusherFilter::create();
  
-   
     beauty_face_filter_ = BeautyFaceFilter::create();
     face_reshape_filter_ = FaceReshapeFilter::create();
     

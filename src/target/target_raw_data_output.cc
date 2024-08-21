@@ -34,9 +34,7 @@ const std::string kRGBToI420FragmentShaderString = R"(
 #endif
 
 std::shared_ptr<TargetRawDataOutput> TargetRawDataOutput::create() {
-  auto sourceRawDataOutput =
-      std::shared_ptr<TargetRawDataOutput>(new TargetRawDataOutput());
-  return sourceRawDataOutput;
+  return std::make_shared<TargetRawDataOutput>();
 }
 
 TargetRawDataOutput::TargetRawDataOutput() {
@@ -112,13 +110,10 @@ void TargetRawDataOutput::update(int64_t frameTime) {
 bool TargetRawDataOutput::initWithShaderString(
     const std::string& vertexShaderSource,
     const std::string& fragmentShaderSource) {
-  _filterProgram =
-      GLProgram::createByShaderString(vertexShaderSource, fragmentShaderSource);
+  _filterProgram = GLProgram::createByShaderString(vertexShaderSource, fragmentShaderSource);
   GPUPixelContext::getInstance()->setActiveShaderProgram(_filterProgram);
   _filterPositionAttribute = _filterProgram->getAttribLocation("position");
-  _filterTexCoordAttribute =
-      _filterProgram->getAttribLocation("inputTextureCoordinate");
-
+  _filterTexCoordAttribute = _filterProgram->getAttribLocation("inputTextureCoordinate");
   return true;
 }
 
@@ -147,12 +142,10 @@ int TargetRawDataOutput::renderToOutput() {
   };
 
   CHECK_GL(glEnableVertexAttribArray(_filterPositionAttribute));
-  CHECK_GL(glVertexAttribPointer(_filterPositionAttribute, 2, GL_FLOAT, 0, 0,
-                                 imageVertices));
+  CHECK_GL(glVertexAttribPointer(_filterPositionAttribute, 2, GL_FLOAT, 0, 0, imageVertices));
 
   CHECK_GL(glEnableVertexAttribArray(_filterTexCoordAttribute));
-  CHECK_GL(glVertexAttribPointer(_filterTexCoordAttribute, 2, GL_FLOAT, 0, 0,
-                                 textureVertices));
+  CHECK_GL(glVertexAttribPointer(_filterTexCoordAttribute, 2, GL_FLOAT, 0, 0, textureVertices));
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, _inputFramebuffers[0].frameBuffer->getTexture());
@@ -200,8 +193,7 @@ void TargetRawDataOutput::initOutputBuffer(int width, int height) {
 
 #if defined(GPUPIXEL_IOS)
 void TargetRawDataOutput::readPixelsFromCVPixelBuffer() {
-  if (kCVReturnSuccess ==
-      CVPixelBufferLockBaseAddress(renderTarget, kCVPixelBufferLock_ReadOnly)) {
+  if (kCVReturnSuccess == CVPixelBufferLockBaseAddress(renderTarget, kCVPixelBufferLock_ReadOnly)) {
     int stride = static_cast<int>(CVPixelBufferGetBytesPerRow(renderTarget));
     uint8_t* pixels = (uint8_t*)CVPixelBufferGetBaseAddress(renderTarget);
 
@@ -290,11 +282,8 @@ void TargetRawDataOutput::initTextureCache(int width, int height) {
 }
 #else
 void TargetRawDataOutput::initFrameBuffer(int width, int height) {
-  if (!_framebuffer || (_framebuffer->getWidth() != width ||
-                        _framebuffer->getHeight() != height)) {
-    _framebuffer =
-        GPUPixelContext::getInstance()->getFramebufferCache()->fetchFramebuffer(
-            width, height);
+  if (!_framebuffer || (_framebuffer->getWidth() != width || _framebuffer->getHeight() != height)) {
+    _framebuffer = GPUPixelContext::getInstance()->getFramebufferCache()->fetchFramebuffer(width, height);
   }
 }
 
@@ -302,8 +291,7 @@ void TargetRawDataOutput::initPBO(int width, int height) {
   CHECK_GL(glGenBuffers(PBO_SIZE, pboIds));
   for (int i = 0; i < PBO_SIZE; ++i) {
     CHECK_GL(glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[i]));
-    CHECK_GL(glBufferData(GL_PIXEL_PACK_BUFFER, width * height * 4, 0,
-                          GL_STREAM_READ));
+    CHECK_GL(glBufferData(GL_PIXEL_PACK_BUFFER, width * height * 4, 0, GL_STREAM_READ));
   }
   CHECK_GL(glBindBuffer(GL_PIXEL_PACK_BUFFER, 0));
 }

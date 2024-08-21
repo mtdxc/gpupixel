@@ -45,9 +45,9 @@ void SourceCamera::setFrameData(
     RotationMode outputRotation /* = RotationMode::NoRotation*/) {
   if (!_framebuffer || (_framebuffer->getWidth() != width ||
                         _framebuffer->getHeight() != height)) {
-    _framebuffer =
-        GPUPixelContext::getInstance()->getFramebufferCache()->fetchFramebuffer(
-            width, height, true);
+    _framebuffer = GPUPixelContext::getInstance()
+                      ->getFramebufferCache()
+                      ->fetchFramebuffer(width, height, true);
   }
   if(_face_detector) {
       _face_detector->Detect(static_cast<const uint8_t *>(pixels), width, height,
@@ -99,8 +99,7 @@ bool SourceCamera::init(NSString* sessionPreset,
   }
 
   NSError* error = nil;
-  _captureDeviceInput =
-      [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
+  _captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
   if ([_captureSession canAddInput:_captureDeviceInput]) {
     [_captureSession addInput:_captureDeviceInput];
   } else {
@@ -111,18 +110,12 @@ bool SourceCamera::init(NSString* sessionPreset,
   _captureVideoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
   [_captureVideoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
   [_captureSession addOutput:_captureVideoDataOutput];
-  dispatch_queue_t queue =
-      dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-  [_captureVideoDataOutput
-      setSampleBufferDelegate:_videoDataOutputSampleBufferDelegate
-                        queue:queue];
+  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+  [_captureVideoDataOutput setSampleBufferDelegate:_videoDataOutputSampleBufferDelegate queue:queue];
   _captureVideoDataOutput.videoSettings = [NSDictionary
-      dictionaryWithObjectsAndKeys:[NSNumber
-                                       numberWithInt:kCVPixelFormatType_32BGRA],
+      dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA],
                                    kCVPixelBufferPixelFormatTypeKey, nil];
-
   setOutputImageOrientation(UIInterfaceOrientationPortrait);
-
   return true;
 }
 
@@ -163,8 +156,7 @@ bool SourceCamera::isRunning() {
 }
 
 bool SourceCamera::flip() {
-  AVCaptureDevicePosition cameraPosition =
-      [[_captureDeviceInput device] position];
+  AVCaptureDevicePosition cameraPosition = [[_captureDeviceInput device] position];
   if (cameraPosition == AVCaptureDevicePositionBack) {
     cameraPosition = AVCaptureDevicePositionFront;
   } else {
@@ -214,8 +206,7 @@ AVCaptureDevicePosition SourceCamera::getCameraPosition() {
   return [[_captureDeviceInput device] position];
 }
 
-void SourceCamera::setOutputImageOrientation(
-    UIInterfaceOrientation orientation) {
+void SourceCamera::setOutputImageOrientation(UIInterfaceOrientation orientation) {
   _outputImageOrientation = orientation;
   _updateOutputRotation();
 }
@@ -306,9 +297,7 @@ void SourceCamera::_updateOutputRotation() {
   }
   _videoDataOutputSampleBufferDelegate.rotation = _outputRotation;
 }
-#endif
 
-#if defined(GPUPIXEL_IOS)
 @implementation VideoDataOutputSampleBufferDelegate
 #pragma mark AVCaptureVideoDataOutputSampleBufferDelegate
 - (void)captureOutput:(AVCaptureOutput*)captureOutput

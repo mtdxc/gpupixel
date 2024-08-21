@@ -17,12 +17,11 @@ class GPUPIXEL_API SourceImage : public Source {
   SourceImage() {}
   ~SourceImage() {};
 
-    void init(int width,
-              int height,
-              int channel_count,
-              const unsigned char* pixels);
-  static std::shared_ptr<SourceImage> create(
-      const std::string name);
+  void init(int width,
+            int height,
+            int channel_count,
+            const unsigned char* pixels);
+  static std::shared_ptr<SourceImage> create(const std::string name);
 
   static std::shared_ptr<SourceImage> create_from_memory(int width,
                                             int height,
@@ -30,9 +29,6 @@ class GPUPIXEL_API SourceImage : public Source {
                                             const unsigned char* pixels);
   void Render();
  private:
-#if defined(GPUPIXEL_ANDROID)
-    static std::shared_ptr<SourceImage> createImageForAndroid(std::string name);
-#endif
   std::vector<unsigned char> image_bytes;
 };
 

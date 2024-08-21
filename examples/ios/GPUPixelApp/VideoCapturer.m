@@ -106,9 +106,8 @@
 
     [self.captureVideoDataOutput setVideoSettings:videoSetting];
     // 设置输出串行队列和数据回调
-    dispatch_queue_t outputQueue =
-        dispatch_get_main_queue();  // dispatch_queue_create("VCVideoCapturerOutputQueue",
-                                    // DISPATCH_QUEUE_SERIAL);
+    dispatch_queue_t outputQueue = dispatch_get_main_queue();  
+    // outputQueue = dispatch_queue_create("VCVideoCapturerOutputQueue", DISPATCH_QUEUE_SERIAL);
     [self.captureVideoDataOutput setSampleBufferDelegate:self queue:outputQueue];
     // 丢弃延迟的帧
     self.captureVideoDataOutput.alwaysDiscardsLateVideoFrames = YES;
@@ -180,8 +179,7 @@
     return [self p_errorWithDomain:@"MAVideoCapture::startCapture failed! is capturing!"];
   }
   // 摄像头权限判断
-  AVAuthorizationStatus videoAuthStatus =
-      [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+  AVAuthorizationStatus videoAuthStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
   if (videoAuthStatus != AVAuthorizationStatusAuthorized) {
     [self p_errorWithDomain:@"MAVideoCapture::Camera Authorizate failed!"];
   }
@@ -209,10 +207,8 @@
   }
 
   [self.captureDeviceInput.device lockForConfiguration:&error];
-  self.captureDeviceInput.device.activeVideoMinFrameDuration =
-      CMTimeMake(1, (int)self.captureParam.frameRate);
-  self.captureDeviceInput.device.activeVideoMaxFrameDuration =
-      CMTimeMake(1, (int)self.captureParam.frameRate);
+  self.captureDeviceInput.device.activeVideoMinFrameDuration = CMTimeMake(1, (int)self.captureParam.frameRate);
+  self.captureDeviceInput.device.activeVideoMaxFrameDuration = CMTimeMake(1, (int)self.captureParam.frameRate);
   [self.captureDeviceInput.device unlockForConfiguration];
   return error;
 }
@@ -221,13 +217,10 @@
 - (void)imageCapture:(void (^)(UIImage *image))completion {
   [self.captureStillImageOutput
       captureStillImageAsynchronouslyFromConnection:self.captureConnection
-                                  completionHandler:^(CMSampleBufferRef imageDataSampleBuffer,
-                                                      NSError *error) {
+                                  completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
                                     if (imageDataSampleBuffer && completion) {
-                                      UIImage *image = [UIImage
-                                          imageWithData:[AVCaptureStillImageOutput
-                                                            jpegStillImageNSDataRepresentation:
-                                                                imageDataSampleBuffer]];
+                                      UIImage *image = [UIImage imageWithData:
+                                          [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation: imageDataSampleBuffer]];
                                       completion(image);
                                     }
                                   }];

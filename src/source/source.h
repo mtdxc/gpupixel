@@ -23,9 +23,9 @@ class GPUPIXEL_API Source {
  public:
   Source();
   virtual ~Source();
+
   virtual std::shared_ptr<Source> addTarget(std::shared_ptr<Target> target);
-  virtual std::shared_ptr<Source> addTarget(std::shared_ptr<Target> target,
-                                            int texIdx);
+  virtual std::shared_ptr<Source> addTarget(std::shared_ptr<Target> target, int texIdx);
 #if defined(GPUPIXEL_IOS) || defined(GPUPIXEL_MAC)
   virtual std::shared_ptr<Source> addTarget(id<GPUPixelTarget> target);
 #endif
@@ -58,9 +58,10 @@ class GPUPIXEL_API Source {
   int RegLandmarkCallback(FaceDetectorCallback callback);
  protected:
   std::shared_ptr<Framebuffer> _framebuffer;
-  RotationMode _outputRotation;
+  RotationMode _outputRotation = RotationMode::NoRotation;
+  // target -> texIdx
   std::map<std::shared_ptr<Target>, int> _targets;
-  float _framebufferScale;
+  float _framebufferScale = 1.0f;
   std::shared_ptr<FaceDetector> _face_detector;
 };
 

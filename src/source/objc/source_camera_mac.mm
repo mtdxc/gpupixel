@@ -27,7 +27,8 @@ using namespace gpupixel;
 @synthesize inputCamera = _inputCamera;
 @synthesize runBenchmark = _runBenchmark;
 @synthesize delegate = _delegate;
-@synthesize horizontallyMirrorFrontFacingCamera = _horizontallyMirrorFrontFacingCamera, horizontallyMirrorRearFacingCamera = _horizontallyMirrorRearFacingCamera;
+@synthesize horizontallyMirrorFrontFacingCamera = _horizontallyMirrorFrontFacingCamera;
+@synthesize horizontallyMirrorRearFacingCamera = _horizontallyMirrorRearFacingCamera;
 
 #pragma mark -
 #pragma mark Initialization and teardown
@@ -260,8 +261,8 @@ using namespace gpupixel;
 			backFacingCamera = device;
 		}
 	}
+
     newVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:backFacingCamera error:&error];
-    
     if (newVideoInput != nil)
     {
         [_captureSession beginConfiguration];
@@ -291,13 +292,11 @@ using namespace gpupixel;
 - (BOOL)isFrontFacingCameraPresent;
 {
 	NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-	
 	for (AVCaptureDevice *device in devices)
 	{
 		if ([device position] == AVCaptureDevicePositionFront)
 			return YES;
 	}
-	
 	return NO;
 }
 
@@ -320,8 +319,7 @@ using namespace gpupixel;
 		for (AVCaptureConnection *connection in videoOutput.connections)
 		{
 			if ([connection respondsToSelector:@selector(setVideoMinFrameDuration:)])
-				connection.videoMinFrameDuration = CMTimeMake(1, (int32_t)_frameRate);
-			
+				connection.videoMinFrameDuration = CMTimeMake(1, (int32_t)_frameRate);	
 		}
 	}
 	else

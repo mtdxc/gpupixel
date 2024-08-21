@@ -184,14 +184,14 @@ int64_t Util::nowTimeMs() {
   return ts;
 }
 
-void Util::Log(const std::string& tag,std::string format, ...) {
+void Util::Log(const std::string& tag,const char* format, ...) {
   char buffer[10240];
   va_list args;
   va_start(args, format);
 #if defined(GPUPIXEL_WIN)
-  // vsprintf(buffer, format.c_str(), args);
+  // vsprintf(buffer, format, args);
 #else
-  vsprintf(buffer, format.c_str(), args);
+  vsprintf(buffer, format, args);
 #endif
   va_end(args);
 #if defined(GPUPIXEL_ANDROID)

@@ -28,6 +28,7 @@ TextureAttributes Framebuffer::defaultTextureAttribures = {
     GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE,
     GL_RGBA,   GL_RGBA,   GL_UNSIGNED_BYTE};
 #endif
+
 Framebuffer::Framebuffer(
     int width,
     int height,
@@ -48,14 +49,11 @@ Framebuffer::Framebuffer(
 
 Framebuffer::~Framebuffer() {
   gpupixel::GPUPixelContext::getInstance()->runSync([&] {
-    bool bDeleteTex = (_texture != -1);
-    bool bDeleteFB = (_framebuffer != -1);
-
-    if (bDeleteTex) {
+    if (_texture != -1) {
       CHECK_GL(glDeleteTextures(1, &_texture));
       _texture = -1;
     }
-    if (bDeleteFB) {
+    if (_framebuffer != -1) {
       CHECK_GL(glDeleteFramebuffers(1, &_framebuffer));
       _framebuffer = -1;
     }
@@ -90,6 +88,7 @@ void Framebuffer::_generateTexture() {
 void Framebuffer::_generateFramebuffer() {
   CHECK_GL(glGenFramebuffers(1, &_framebuffer));
   CHECK_GL(glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer));
+  // gen texture first
   _generateTexture();
   CHECK_GL(glBindTexture(GL_TEXTURE_2D, _texture));
   CHECK_GL(glTexImage2D(GL_TEXTURE_2D, 0, _textureAttributes.internalFormat,

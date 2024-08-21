@@ -16,8 +16,7 @@ class GPUPIXEL_API TargetView : public Target {
   enum FillMode {
     Stretch = 0,  // Stretch to fill the view, and may distort the image
     PreserveAspectRatio = 1,  // preserve the aspect ratio of the image
-    PreserveAspectRatioAndFill =
-        2  // preserve the aspect ratio, and zoom in to fill the view
+    PreserveAspectRatioAndFill = 2  // preserve the aspect ratio, and zoom in to fill the view
   };
 
  public:
@@ -34,24 +33,24 @@ class GPUPIXEL_API TargetView : public Target {
   virtual void update(int64_t frameTime) override;
 
  private:
-  int _viewWidth;
-  int _viewHeight;
-  FillMode _fillMode;
+  int _viewWidth = 0;
+  int _viewHeight = 0;
+  FillMode _fillMode = FillMode::PreserveAspectRatio;
   bool _mirror = false;
-  GLProgram* _displayProgram;
-  GLuint _positionAttribLocation;
-  GLuint _texCoordAttribLocation;
-  GLuint _colorMapUniformLocation;
+  GLProgram* _displayProgram = nullptr;
+  GLuint _positionAttribLocation = 0;
+  GLuint _texCoordAttribLocation = 0;
+  GLuint _colorMapUniformLocation = 0;
   struct {
     float r;
     float g;
     float b;
     float a;
-  } _backgroundColor;
-
+  } _backgroundColor = {0.0f, 0.0f, 0.0f, 0.0f};
+  // 缩放裁剪矩阵
   GLfloat _displayVertices[8];
-
   void _updateDisplayVertices();
+  // 旋转矩阵
   const GLfloat* _getTexureCoordinate(RotationMode rotationMode);
 };
 

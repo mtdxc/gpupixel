@@ -20,14 +20,13 @@ GLProgram::GLProgram() : _program(-1) {
 
 GLProgram::~GLProgram() {
   GPUPixelContext::getInstance()->runSync([=] {
-    std::vector<GLProgram*>::iterator itr =
-        std::find(_programs.begin(), _programs.end(), this);
+    std::vector<GLProgram*>::iterator itr = std::find(_programs.begin(), _programs.end(), this);
     if (itr != _programs.end()) {
       _programs.erase(itr);
     }
 
     bool bDeleteProgram = (_program != -1);
-
+    // loopup for other ref?
     for (auto const& program : _programs) {
       if (bDeleteProgram) {
         if (_program == program->getID()) {
@@ -79,12 +78,9 @@ bool GLProgram::_initWithShaderString(const std::string& vertexShaderSource,
 #if defined(GPUPIXEL_IOS) || defined(GPUPIXEL_MAC)
     NSString* messageString = [NSString stringWithUTF8String:messages];
     NSLog(@"%@", messageString);
-#else
-
 #endif
-    gpupixel::Util::Log(
-        "ERROR", "GL ERROR GLProgram::_initWithShaderString vertex shader %s",
-        messages);
+    gpupixel::Util::Log("ERROR", 
+      "GL ERROR GLProgram::_initWithShaderString vertex shader %s", messages);
     return -1;
   }
 
@@ -100,12 +96,9 @@ bool GLProgram::_initWithShaderString(const std::string& vertexShaderSource,
 #if defined(GPUPIXEL_IOS) || defined(GPUPIXEL_MAC)
     NSString* messageString = [NSString stringWithUTF8String:messages];
     NSLog(@"%@", messageString);
-#else
-
 #endif
-    gpupixel::Util::Log(
-        "ERROR", "GL ERROR GLProgram::_initWithShaderString frag shader %s",
-        messages);
+    gpupixel::Util::Log("ERROR", 
+      "GL ERROR GLProgram::_initWithShaderString frag shader %s", messages);
     return -1;
   }
 

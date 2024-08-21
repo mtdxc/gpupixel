@@ -17,6 +17,7 @@
 
 NS_GPUPIXEL_BEGIN
 class GPUPIXEL_API SourceCamera : public Source {
+  std::shared_ptr<Framebuffer> _framebuffer;
  public:
   SourceCamera();
   virtual ~SourceCamera();
@@ -42,10 +43,8 @@ class GPUPIXEL_API SourceCamera : public Source {
   void setOutputImageOrientation(UIInterfaceOrientation orientation);
   void setHorizontallyMirrorFrontFacingCamera(bool newValue);
   void setHorizontallyMirrorRearFacingCamera(bool newValue);
-#endif
 
  private:
-#if defined(GPUPIXEL_IOS)
   VideoDataOutputSampleBufferDelegate* _videoDataOutputSampleBufferDelegate;
   AVCaptureSession* _captureSession;
   BOOL _capturePaused;
@@ -62,7 +61,6 @@ class GPUPIXEL_API SourceCamera : public Source {
       _horizontallyMirrorRearFacingCamera;
   void _updateOutputRotation();
 #endif
-  std::shared_ptr<Framebuffer> _framebuffer;
 };
 
 NS_GPUPIXEL_END

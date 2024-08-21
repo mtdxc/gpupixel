@@ -114,8 +114,7 @@ const std::string kGPUImageBaseBeautyFaceFragmentShaderString = R"(
         texPos2 = quad2 * 0.25 + texPos2;
         vec3 newColor1Origin = texture2D(lookUpOrigin, texPos1).rgb;
         vec3 newColor2Origin = texture2D(lookUpOrigin, texPos2).rgb;
-        vec3 colorOrigin =
-            mix(newColor1Origin, newColor2Origin, fract(blueColor));
+        vec3 colorOrigin = mix(newColor1Origin, newColor2Origin, fract(blueColor));
         texel = mix(colorOrigin, color, alpha);
 
         texel = clamp(texel, 0., 1.);
@@ -151,8 +150,7 @@ const std::string kGPUImageBaseBeautyFaceFragmentShaderString = R"(
                            ((1.0 / 8.0 - 1.0 / 512.0) * color.g);
         newColor1 = texture2D(lookUpCustom, texPos1_custom).rgb;
         newColor2 = texture2D(lookUpCustom, texPos2_custom).rgb;
-        vec3 color_custom =
-            mix(newColor1, newColor2, fract(blueColor_custom));
+        vec3 color_custom = mix(newColor1, newColor2, fract(blueColor_custom));
         color = mix(color, color_custom, whiten);
       }
 
@@ -216,8 +214,7 @@ const std::string kGPUImageBaseBeautyFaceFragmentShaderString = R"(
       // whiten
       if (whiten > 0.0) {
         vec3 colorEPM = color;
-        color =
-            clamp((colorEPM - vec3(levelBlack)) * levelRangeInv, 0.0, 1.0);
+        color = clamp((colorEPM - vec3(levelBlack)) * levelRangeInv, 0.0, 1.0);
         vec3 texel = vec3(texture2D(lookUpGray, vec2(color.r, 0.5)).r,
                           texture2D(lookUpGray, vec2(color.g, 0.5)).g,
                           texture2D(lookUpGray, vec2(color.b, 0.5)).b);
@@ -237,8 +234,7 @@ const std::string kGPUImageBaseBeautyFaceFragmentShaderString = R"(
         texPos2 = quad2 * 0.25 + texPos2;
         vec3 newColor1Origin = texture2D(lookUpOrigin, texPos1).rgb;
         vec3 newColor2Origin = texture2D(lookUpOrigin, texPos2).rgb;
-        vec3 colorOrigin =
-            mix(newColor1Origin, newColor2Origin, fract(blueColor));
+        vec3 colorOrigin = mix(newColor1Origin, newColor2Origin, fract(blueColor));
         texel = mix(colorOrigin, color, alpha);
 
         texel = clamp(texel, 0., 1.);
@@ -274,8 +270,7 @@ const std::string kGPUImageBaseBeautyFaceFragmentShaderString = R"(
                            ((1.0 / 8.0 - 1.0 / 512.0) * color.g);
         newColor1 = texture2D(lookUpCustom, texPos1_custom).rgb;
         newColor2 = texture2D(lookUpCustom, texPos2_custom).rgb;
-        vec3 color_custom =
-            mix(newColor1, newColor2, fract(blueColor_custom));
+        vec3 color_custom = mix(newColor1, newColor2, fract(blueColor_custom));
         color = mix(color, color_custom, whiten);
       }
       
