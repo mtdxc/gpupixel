@@ -162,31 +162,27 @@ using namespace gpupixel;
 
 - (void)willOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer {
     CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    CVPixelBufferLockBaseAddress(imageBuffer, 0);
-    bool yuv = false;
+    size_t width = CVPixelBufferGetWidth(imageBuffer);
+    size_t height = CVPixelBufferGetHeight(imageBuffer);
+    const OSType pixelFormat = CVPixelBufferGetPixelFormatType(imageBuffer);
+    bool yuv = pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange || pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange;
     if (yuv) {
-        CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
         // 获取采集的数据
         CVPixelBufferLockBaseAddress(imageBuffer, 0);
         const uint8_t* dataY = (const uint8_t*)CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 0);//YYYYYYYY
         size_t strideY = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 0);
         const uint8_t* dataUV = (const uint8_t*)CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 1);//UVUVUVUV
         size_t strideUV = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 1);
-        size_t width = CVPixelBufferGetWidth(imageBuffer);
-        size_t height = CVPixelBufferGetHeight(imageBuffer);
         gpuPixelRawInput->uploadBytes(width,
                                 height, 
                                 dataY,
                                 strideY, 
                                 dataUV, 
                                 strideUV,
-                                dataUV + width * height / 4,
-                                strideUV);
+                                Util::nowTimeMs());
         CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
     } else {
       CVPixelBufferLockBaseAddress(imageBuffer, 0);
-      auto width = CVPixelBufferGetWidth(imageBuffer);
-      auto height = CVPixelBufferGetHeight(imageBuffer);
       auto stride = CVPixelBufferGetBytesPerRow(imageBuffer)/4;
       auto pixels = (const uint8_t *)CVPixelBufferGetBaseAddress(imageBuffer);
       gpuPixelRawInput->uploadBytes(pixels, width, height, stride, Util::nowTimeMs());

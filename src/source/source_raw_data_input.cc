@@ -9,6 +9,8 @@
 #include "gpupixel_context.h"
 #include "util.h"
 #include "face_detector.h"
+#include "libyuv/convert.h"  // For I420ToBGRA
+
 USING_NS_GPUPIXEL
 
 const std::string kI420VertexShaderString = R"(
@@ -134,6 +136,22 @@ void SourceRawDataInput::setRotation(RotationMode rotation) {
 }
 
 void SourceRawDataInput::uploadBytes(int width,
+                 int height,
+                 const uint8_t* dataY,
+                 int strideY,
+                 const uint8_t* dataUV,
+                 int strideUV,
+                 int64_t ts) {
+    int size = width * height * 4;
+    if(rgba_.size()!=size) rgba_.resize(size);
+    uint8_t* data = rgba_.data();
+    libyuv::NV12ToARGB(dataY, strideY, dataUV, strideUV,
+                       data, width*4,
+                       width, height);
+    uploadBytes(data, width, height, width, ts);
+}
+
+void SourceRawDataInput::uploadBytes(int width,
                                      int height,
                                      const uint8_t* dataY,
                                      int strideY,
@@ -142,6 +160,18 @@ void SourceRawDataInput::uploadBytes(int width,
                                      const uint8_t* dataV,
                                      int strideV,
                                      int64_t ts) {
+#if defined(GPUPIXEL_IOS) || defined(GPUPIXEL_MAC)
+  if (1) { // IOS的VNN人脸识别库不支持yuv输入，这边转成rgba
+    int size = width * height * 4;
+    if(rgba_.size()!=size) rgba_.resize(size);
+    uint8_t* data = rgba_.data();
+    libyuv::I420ToARGB(dataY, strideY, dataU, strideU, dataV, strideV,
+                       data, width*4,
+                       width, height);
+    uploadBytes(data, width, height, width, ts);
+    return;
+  }
+#endif
   GPUPixelContext::getInstance()->runSync([=] {
     if(_face_detector) {
       _face_detector->Detect(dataY, width, height, GPUPIXEL_MODE_FMT_VIDEO, GPUPIXEL_FRAME_TYPE_YUVI420);
