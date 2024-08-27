@@ -51,7 +51,7 @@ using namespace gpupixel;
   [self initVideoFilter];
   [self initUI];
 
-  captureYuvFrame = false;
+  captureYuvFrame = true;
   // start camera capture
   [self.capturer startCapture];
 }
@@ -198,34 +198,31 @@ using namespace gpupixel;
  
 // camera frame callback
 - (void)videoCaptureOutputDataCallback:(CMSampleBufferRef)sampleBuffer {
+  CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+  const OSType pixelFormat = CVPixelBufferGetPixelFormatType(imageBuffer);
+  size_t width = CVPixelBufferGetWidth(imageBuffer);
+  size_t height = CVPixelBufferGetHeight(imageBuffer);
   if(captureYuvFrame) {
-      CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
       CVPixelBufferLockBaseAddress(imageBuffer, 0);
       const uint8_t* dataY = (const uint8_t*)CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 0);//YYYYYYYY
       size_t strideY = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 0);
       const uint8_t* dataUV = (const uint8_t*)CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 1);//UVUVUVUV
       size_t strideUV = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 1);
-      size_t width = CVPixelBufferGetWidth(imageBuffer);
-      size_t height = CVPixelBufferGetHeight(imageBuffer);
       gpuPixelRawInput->uploadBytes(width,
                               height, 
                               dataY,
                               strideY, 
                               dataUV, 
                               strideUV,
-                              dataUV + width * height / 4,
-                              strideUV);
+                              Util::nowTimeMs());
       // todo render nv12
       CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
     } else {
       //
-      CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
       CVPixelBufferLockBaseAddress(imageBuffer, 0);
-      auto width = CVPixelBufferGetWidth(imageBuffer);
-      auto height = CVPixelBufferGetHeight(imageBuffer);
       auto stride = CVPixelBufferGetBytesPerRow(imageBuffer)/4;
       auto pixels = (const uint8_t *)CVPixelBufferGetBaseAddress(imageBuffer);
-      gpuPixelRawInput->uploadBytes(pixels, width, height, stride);
+      gpuPixelRawInput->uploadBytes(pixels, width, height, stride, Util::nowTimeMs());
       CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
     }
 }

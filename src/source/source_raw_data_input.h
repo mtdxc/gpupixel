@@ -10,6 +10,8 @@
 #include "filter.h"
 #include "gl_program.h"
 #include <functional>
+#include <vector>
+
 NS_GPUPIXEL_BEGIN
 class GPUPIXEL_API SourceRawDataInput : public Filter {
  public:
@@ -19,6 +21,13 @@ class GPUPIXEL_API SourceRawDataInput : public Filter {
                    int width,
                    int height,
                    int stride,
+                   int64_t ts = 0);
+  void uploadBytes(int width,
+                   int height,
+                   const uint8_t* dataY,
+                   int strideY,
+                   const uint8_t* dataUV,
+                   int strideUV,
                    int64_t ts = 0);
   void uploadBytes(int width,
                    int height,
@@ -60,6 +69,7 @@ class GPUPIXEL_API SourceRawDataInput : public Filter {
   GLuint _textures[4] = {0};
   RotationMode _rotation = NoRotation;
   std::shared_ptr<Framebuffer> _framebuffer;
+  std::vector<uint8_t> rgba_;
 };
 
 NS_GPUPIXEL_END
