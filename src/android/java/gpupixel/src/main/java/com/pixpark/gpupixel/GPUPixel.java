@@ -211,10 +211,10 @@ public class GPUPixel {
     public static native long nativeFilterCreate(final String filterClassName);
     public static native void nativeFilterDestroy(long classID);
     public static native void nativeFilterFinalize(long classID);
-    public static native void nativeFilterSetPropertyFloat(long classID, String property, float value);
-    public static native void nativeFilterSetPropertyInt(long classID, String property, int value);
-    public static native void nativeFilterSetPropertyFloatArray(long classID, String property, float[] array);
-    public static native void nativeFilterSetPropertyString(long classID, String prooerty, String value);
+    public static native boolean nativeFilterSetPropertyFloat(long classID, String property, float value);
+    public static native boolean nativeFilterSetPropertyInt(long classID, String property, int value);
+    public static native boolean nativeFilterSetPropertyFloatArray(long classID, String property, float[] array);
+    public static native boolean nativeFilterSetPropertyString(long classID, String prooerty, String value);
     // SourceImage
     public static native long nativeSourceImageNew();
     public static native void nativeSourceImageDestroy(final long classID);
