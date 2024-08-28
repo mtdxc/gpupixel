@@ -279,32 +279,32 @@ extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeFilterFinalize(
   ((Filter*)classId)->releaseFramebuffer(false);
 };
 
-extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeFilterSetPropertyFloat(
+extern "C" jboolean Java_com_pixpark_gpupixel_GPUPixel_nativeFilterSetPropertyFloat(
     JNIEnv* env,
     jclass obj,
     jlong classId,
     jstring jProperty,
     jfloat value) {
-  ((Filter*)classId)->setProperty(JavaToStdString(env, jProperty), value);
+  return ((Filter*)classId)->setProperty(JavaToStdString(env, jProperty), value);
 };
 
-extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeFilterSetPropertyInt(
+extern "C" jboolean Java_com_pixpark_gpupixel_GPUPixel_nativeFilterSetPropertyInt(
     JNIEnv* env,
     jclass obj,
     jlong classId,
     jstring jProperty,
     jint value) {
-  ((Filter*)classId)->setProperty(JavaToStdString(env, jProperty), value);
+  return ((Filter*)classId)->setProperty(JavaToStdString(env, jProperty), value);
 };
 
-extern "C" void
+extern "C" jboolean
 Java_com_pixpark_gpupixel_GPUPixel_nativeFilterSetPropertyString(
     JNIEnv* env,
     jclass obj,
     jlong classId,
     jstring jProperty,
     jstring jValue) {
-  ((Filter*)classId)->setProperty(JavaToStdString(env, jProperty), JavaToStdString(env, jValue));
+  return ((Filter*)classId)->setProperty(JavaToStdString(env, jProperty), JavaToStdString(env, jValue));
 };
 
 extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeContextInit(
@@ -382,7 +382,7 @@ extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeSetLandmarkCallback (
 };
 
 extern "C"
-JNIEXPORT void JNICALL
+JNIEXPORT jboolean JNICALL
 Java_com_pixpark_gpupixel_GPUPixel_nativeFilterSetPropertyFloatArray(JNIEnv *env, jclass clazz,
                                                                      jlong class_id,
                                                                      jstring jProperty,
@@ -394,9 +394,10 @@ Java_com_pixpark_gpupixel_GPUPixel_nativeFilterSetPropertyFloatArray(JNIEnv *env
     for(int i = 0; i < length; i++) {
         vector.push_back(c_array[i]);
     }
-    ((Filter*)class_id)->setProperty(JavaToStdString(env, jProperty), vector);
+    jboolean ret = ((Filter*)class_id)->setProperty(JavaToStdString(env, jProperty), vector);
     // 释放Java数组的内存
     env->ReleaseFloatArrayElements(jarray, c_array, JNI_ABORT);
+    return ret;
 }
 
 extern "C" jint JNIEXPORT JNICALL JNI_OnLoad(JavaVM* jvm, void* reserved) {
