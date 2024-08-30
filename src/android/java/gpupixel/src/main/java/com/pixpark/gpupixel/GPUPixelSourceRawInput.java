@@ -16,7 +16,7 @@ public class GPUPixelSourceRawInput extends GPUPixelSource {
         GPUPixel.getInstance().runOnDraw(new Runnable() {
             @Override
             public void run() {
-                mNativeClassID = GPUPixel.nativeSourceRawInputNew();
+                mNativeClassID = GPUPixel.nativeSourceCameraNew();
             }
         });
     }
@@ -30,7 +30,7 @@ public class GPUPixelSourceRawInput extends GPUPixelSource {
         GPUPixel.getInstance().runOnDraw(new Runnable() {
             @Override
             public void run() {
-                GPUPixel.nativeSourceRawInputUploadBytes(mNativeClassID, pixels, width, height, stride);
+                GPUPixel.nativeSourceCameraSetFrame(mNativeClassID, height, width, pixels, GPUPixel.NoRotation);
             }
         });
         proceed(true, true);
@@ -47,13 +47,13 @@ public class GPUPixelSourceRawInput extends GPUPixelSource {
                     @Override
                     public void run() {
                         if (mNativeClassID != 0) {
-                            GPUPixel.nativeSourceRawInputDestroy(mNativeClassID);
+                            GPUPixel.nativeSourceCameraDestroy(mNativeClassID);
                             mNativeClassID = 0;
                         }
                     }
                 });
             } else {
-                GPUPixel.nativeSourceRawInputDestroy(mNativeClassID);
+                GPUPixel.nativeSourceCameraDestroy(mNativeClassID);
                 mNativeClassID = 0;
             }
         }
