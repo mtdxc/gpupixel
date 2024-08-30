@@ -16,6 +16,7 @@ import android.os.Build;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 public class GPUPixel {
 
@@ -226,6 +227,11 @@ public class GPUPixel {
     public static native void nativeSourceCameraDestroy(final long classID);
     public static native void nativeSourceCameraFinalize(final long classID);
     public static native void nativeSourceCameraSetFrame(final long classID, final int width, final int height, final int[] data, final int rotation);
+    public static native void nativeSourceCameraSetYuvFrame(final long classID, int width, int height,
+                                                            ByteBuffer dataY, int strideY,
+                                                            ByteBuffer dataU, int strideU,
+                                                            ByteBuffer dataV, int strideV,
+                                                            int rotation);
 
     // SourceRawDataInput
     public static native long nativeSourceRawInputNew();
