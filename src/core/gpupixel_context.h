@@ -42,6 +42,7 @@ class GPUPIXEL_API GPUPixelContext {
   void presentBufferForDisplay();
   bool isCurrentThread() const {return std::this_thread::get_id() == _tid;}
   void step();
+  void runTasks();
 #if defined(GPUPIXEL_IOS)
   EAGLContext* getGLContext() const { return _eglContext; }
 #elif defined(GPUPIXEL_MAC)
@@ -79,7 +80,7 @@ class GPUPIXEL_API GPUPixelContext {
   bool context_inited = false;
   int m_surfacewidth;
   int m_surfaceheight;
-  _gpu_context_t* m_gpu_context;
+  _gpu_context_t* m_gpu_context = nullptr;
 #elif defined(GPUPIXEL_IOS)
   EAGLContext* _eglContext;
 #elif defined(GPUPIXEL_MAC)

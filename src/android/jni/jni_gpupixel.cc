@@ -325,6 +325,10 @@ extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeContextPurge(
   GPUPixelContext::getInstance()->purge();
 };
 
+extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeContextRunTasks(JNIEnv *env, jclass clazz) {
+    GPUPixelContext::getInstance()->runTasks();
+}
+
 extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeYUVtoRBGA(
     JNIEnv* env,
     jclass obj,

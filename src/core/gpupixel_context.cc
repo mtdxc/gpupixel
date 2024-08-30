@@ -340,6 +340,10 @@ void GPUPixelContext::step() {
   task_queue_->processOne();
 }
 
+void GPUPixelContext::runTasks(){
+    task_queue_->processAll();
+}
+
 void GPUPixelContext::runSync(std::function<void(void)> func) {
 #if defined(GPUPIXEL_WIN) || defined(GPUPIXEL_LINUX)
   if (isCurrentThread()) {

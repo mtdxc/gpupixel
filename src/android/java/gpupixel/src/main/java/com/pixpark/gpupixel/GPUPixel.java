@@ -252,7 +252,7 @@ public class GPUPixel {
     public static native void nativeContextInit();
     public static native void nativeContextDestroy();
     public static native void nativeContextPurge();
-
+    public static native void nativeContextRunTasks();
     // utils
     public static native void nativeYUVtoRBGA(byte[] yuv, int width, int height, int[] out);
 

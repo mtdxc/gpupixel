@@ -44,6 +44,7 @@ public class GPUPixelRenderer implements Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        GPUPixel.nativeContextRunTasks();
         runAll(mPreDrawQueue);
         runAll(mDrawQueue);
         runAll(mPostDrawQueue);
