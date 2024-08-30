@@ -463,3 +463,40 @@ extern "C" void Java_com_pixpark_gpupixel_GPUPixelTargetRawDataOutput_nativeSetP
         ref->onBytes(data, width, height, ts, 4);
     });
 }
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_pixpark_gpupixel_GPUPixel_nativeSourceCameraSetYuvFrame(JNIEnv *env, jclass clazz,
+                                                 jlong class_id, jint width,
+                                                 jint height, jobject data_y,
+                                                 jint stride_y, jobject data_u,
+                                                 jint stride_u, jobject data_v,
+                                                 jint stride_v, jint rotation) {
+    uint8_t* y = (uint8_t*)env->GetDirectBufferAddress(data_y);
+    uint8_t* u = (uint8_t*)env->GetDirectBufferAddress(data_u);
+    uint8_t* v = (uint8_t*)env->GetDirectBufferAddress(data_v);
+    uint8_t* src_rgba = (uint8_t*)malloc(width*height*4);
+    libyuv::I420ToABGR(y, stride_y,
+                       u, stride_u,
+                       v, stride_v,
+                       src_rgba,
+                       width*4,
+                       width,
+                       height);
+    if (rotation) {
+        uint8_t* rgbData = (uint8_t*)malloc(width*height*4);
+        libyuv::ARGBRotate(src_rgba,
+                           width*4,
+                           reinterpret_cast<uint8_t*>(rgbData),
+                           height*4,
+                           width,
+                           height,
+                           (libyuv::RotationMode)rotation);
+        free(src_rgba);
+        src_rgba = rgbData;
+        if (rotation != 180) {
+            std::swap(width, height);
+        }
+    }
+    ((SourceCamera*)class_id)->setFrameData(width, height, src_rgba, (RotationMode)0);
+    free(src_rgba);
+}
