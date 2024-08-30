@@ -12,6 +12,8 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.Toast;
@@ -59,7 +61,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // preview
+
         surfaceView = binding.surfaceView;
+        if (surfaceView == null) {
+            surfaceView = new GPUPixelView(this);//;
+            // binding.getRoot().addView(surfaceView, 1, 1);
+            // setContentView(surfaceView);
+            addContentView(surfaceView, new ViewGroup.LayoutParams(1,1));
+            surfaceView.setVisibility(View.INVISIBLE);
+        }
         surfaceView.setMirror(true);
 
         smooth_seekbar = binding.smoothSeekbar;
@@ -167,10 +177,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         sourceCamera = new GPUPixelSourceCamera(this.getApplicationContext());
 
         //
-        sourceCamera.addTarget(lipstickFilter);
+        if (sourceCamera!=null) {
+            sourceCamera.addTarget(lipstickFilter);
+        }
         lipstickFilter.addTarget(faceReshapFilter);
         faceReshapFilter.addTarget(beautyFaceFilter);
-        beautyFaceFilter.addTarget(surfaceView);
+        if (surfaceView!=null) {
+            beautyFaceFilter.addTarget(surfaceView);
+        }
 
         rawDataOutput = new GPUPixelTargetRawDataOutput();
         rawDataOutput.setI420Callbck(new GPUPixelTargetRawDataOutput.RawOutputCallback() {
@@ -180,13 +194,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
         });
         beautyFaceFilter.addTarget(rawDataOutput);
-        sourceCamera.setLandmarkCallbck(new GPUPixel.GPUPixelLandmarkCallback() {
-            @Override
-            public void onFaceLandmark(float[] landmarks) {
-                faceReshapFilter.setFaceLandmark(landmarks);
-                lipstickFilter.setFaceLandmark(landmarks);
-            }
-        });
+        if (sourceCamera!=null) {
+            sourceCamera.setLandmarkCallbck(new GPUPixel.GPUPixelLandmarkCallback() {
+                @Override
+                public void onFaceLandmark(float[] landmarks) {
+                    faceReshapFilter.setFaceLandmark(landmarks);
+                    lipstickFilter.setFaceLandmark(landmarks);
+                }
+            });
+        }
         // set default value
         beautyFaceFilter.setSmoothLevel(0.5f);
         beautyFaceFilter.setWhiteLevel(0.4f);
@@ -216,7 +232,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
 
     public void surfaceCreated(SurfaceHolder holder) {
-        sourceCamera.setPreviewHolder(holder);
+        if (sourceCamera!=null)
+            sourceCamera.setPreviewHolder(holder);
     }
 
     @Override
