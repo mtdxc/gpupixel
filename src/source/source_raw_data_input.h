@@ -37,6 +37,7 @@ class GPUPIXEL_API SourceRawDataInput : public Filter {
                    int strideU,
                    const uint8_t* dataV,
                    int strideV,
+                   int rotation,
                    int64_t ts = 0);
 
   void setRotation(RotationMode rotation);
@@ -69,7 +70,7 @@ class GPUPIXEL_API SourceRawDataInput : public Filter {
   GLuint _textures[4] = {0};
   RotationMode _rotation = NoRotation;
   std::shared_ptr<Framebuffer> _framebuffer;
-  std::vector<uint8_t> rgba_;
+  std::vector<uint8_t> rgba_, rrgba_;
 };
 
 NS_GPUPIXEL_END
