@@ -9,6 +9,7 @@
 #include "gpupixel_context.h"
 #include "util.h"
 #include "face_detector.h"
+#include "libyuv.h"
 #include "libyuv/convert.h"  // For I420ToBGRA
 
 USING_NS_GPUPIXEL
@@ -159,6 +160,7 @@ void SourceRawDataInput::uploadBytes(int width,
                                      int strideU,
                                      const uint8_t* dataV,
                                      int strideV,
+                                     int rotation,
                                      int64_t ts) {
 #if defined(GPUPIXEL_IOS) || defined(GPUPIXEL_MAC)
   if (1) { // IOS的VNN人脸识别库不支持yuv输入，这边转成rgba
@@ -168,6 +170,15 @@ void SourceRawDataInput::uploadBytes(int width,
     libyuv::I420ToARGB(dataY, strideY, dataU, strideU, dataV, strideV,
                        data, width*4,
                        width, height);
+    if (rotation) {
+      int stride = width * 4;
+      if (rotation!=180) stride = height * 4;
+      if (rrgba_.size() != size)
+        rrgba_.resize(size);
+      libyuv::ARGBRotate(data, width*4, rrgba_.data(), stride, width, height, (libyuv::RotationMode)rotation);
+      data = rrgba_.data();
+      if (rotation!=180) std::swap(width, height);
+    }
     uploadBytes(data, width, height, width, ts);
     return;
   }

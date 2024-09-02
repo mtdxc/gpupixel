@@ -484,10 +484,12 @@ Java_com_pixpark_gpupixel_GPUPixel_nativeSourceCameraSetYuvFrame(JNIEnv *env, jc
                        height);
     if (rotation) {
         uint8_t* rgbData = (uint8_t*)malloc(width*height*4);
+        int stride = width * 4;
+        if (rotation != 180) stride = height * 4;
         libyuv::ARGBRotate(src_rgba,
                            width*4,
                            reinterpret_cast<uint8_t*>(rgbData),
-                           height*4,
+                           stride,
                            width,
                            height,
                            (libyuv::RotationMode)rotation);
