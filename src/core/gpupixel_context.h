@@ -77,14 +77,14 @@ class GPUPIXEL_API GPUPixelContext {
   std::thread::id _tid;
 #if defined(GPUPIXEL_ANDROID)
   bool context_inited = false;
-  int m_surfacewidth;
-  int m_surfaceheight;
-  _gpu_context_t* m_gpu_context;
+  int m_surfacewidth = 0;
+  int m_surfaceheight = 0;
+  _gpu_context_t* m_gpu_context = nullptr;
 #elif defined(GPUPIXEL_IOS)
-  EAGLContext* _eglContext;
+  EAGLContext* _eglContext = nullptr;
 #elif defined(GPUPIXEL_MAC)
-  NSOpenGLContext* imageProcessingContext;
-  NSOpenGLPixelFormat* _pixelFormat;
+  NSOpenGLContext* imageProcessingContext = nullptr;
+  NSOpenGLPixelFormat* _pixelFormat = nullptr;
 #elif defined(GPUPIXEL_WIN) || defined(GPUPIXEL_LINUX)
   GLFWwindow* gl_context_ = nullptr;
 #endif
