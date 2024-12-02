@@ -310,7 +310,7 @@ Java_com_pixpark_gpupixel_GPUPixel_nativeFilterSetPropertyString(
 extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeContextInit(
     JNIEnv* env,
     jclass obj){
-
+  GPUPixelContext::getInstance();
 };
 
 extern "C" void Java_com_pixpark_gpupixel_GPUPixel_nativeContextDestroy(
