@@ -15,16 +15,11 @@
 #include "filter.h"
 #include "gl_program.h"
 
-#if defined(GPUPIXEL_ANDROID)
-  typedef struct _gpu_context_t {
-    EGLDisplay egldisplay;
-    EGLSurface eglsurface;
-    EGLContext eglcontext;
-  } _gpu_context_t;
-#endif
- 
- 
 NS_GPUPIXEL_BEGIN
+#if defined(GPUPIXEL_ANDROID)
+struct GpuContext;
+#endif
+
 class GPUPIXEL_API GPUPixelContext {
  public:
   static GPUPixelContext* getInstance();
@@ -49,7 +44,7 @@ class GPUPIXEL_API GPUPixelContext {
 #elif defined(GPUPIXEL_WIN) || defined(GPUPIXEL_LINUX)
   GLFWwindow* getGLContext() const { return gl_context_; }
 #elif defined(GPUPIXEL_ANDROID)
-  _gpu_context_t* getGLContext(){ return m_gpu_context; }
+  GpuContext* getGLContext(){ return gl_context_; }
 #endif
  
 
@@ -76,10 +71,7 @@ class GPUPIXEL_API GPUPixelContext {
   std::shared_ptr<LocalDispatchQueue> task_queue_;
   std::thread::id _tid;
 #if defined(GPUPIXEL_ANDROID)
-  bool context_inited = false;
-  int m_surfacewidth = 0;
-  int m_surfaceheight = 0;
-  _gpu_context_t* m_gpu_context = nullptr;
+  GpuContext* gl_context_ = nullptr;
 #elif defined(GPUPIXEL_IOS)
   EAGLContext* _eglContext = nullptr;
 #elif defined(GPUPIXEL_MAC)

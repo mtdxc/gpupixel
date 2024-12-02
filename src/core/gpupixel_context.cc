@@ -78,10 +78,109 @@ NS_GPUPIXEL_BEGIN
 iOSHelper* iosHelper;
 #elif defined(GPUPIXEL_ANDROID)
 const std::string kRtcLogTag = "Context";
+struct GpuContext {
+  EGLDisplay egldisplay = EGL_NO_DISPLAY;
+  EGLSurface eglsurface = EGL_NO_SURFACE;
+  EGLContext eglcontext = EGL_NO_CONTEXT;
+  bool inited_ = false;
+  int surface_width_ = 0;
+  int surface_height_ = 0;
+
+  ~GpuContext() {destory();}
+  bool create() {
+    inited_ = true;
+    surface_width_ = 1;
+    surface_height_ = 1;
+    egldisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    if (EGL_NO_DISPLAY == egldisplay) {
+      Util::Log("ERROR", "eglGetDisplay Error!");
+      return false;
+    }
+
+    GLint majorVersion;
+    GLint minorVersion;
+    if (!eglInitialize(egldisplay, &majorVersion, &minorVersion)) {
+      Util::Log("ERROR", "eglInitialize Error!");
+      return false;
+    }
+    Util::Log("INFO", "GL Version minor:%d major:%d", minorVersion, majorVersion);
+
+    // 如果创建WindowSurface使用EGL_WINDOW_BIT，PBufferSurface使用EGL_PBUFFER_BIT
+    EGLint config_attribs[] = {EGL_BLUE_SIZE,
+                                8,
+                                EGL_GREEN_SIZE,
+                                8,
+                                EGL_RED_SIZE,
+                                8,
+                                EGL_RENDERABLE_TYPE,
+                                EGL_OPENGL_ES2_BIT,
+                                EGL_SURFACE_TYPE,
+                                EGL_PBUFFER_BIT,
+                                EGL_NONE};
+
+    int num_configs = 0;
+    EGLConfig eglConfig;
+    if (!eglChooseConfig(egldisplay, config_attribs, &eglConfig, 1,
+                          &num_configs)) {
+      Util::Log("ERROR", "eglChooseConfig Error!");
+      return false;
+    }
+
+    EGLint context_attrib[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+    eglcontext = eglCreateContext(egldisplay, eglConfig, EGL_NO_CONTEXT, context_attrib);
+    if (EGL_NO_CONTEXT == eglcontext) {
+      Util::Log("ERROR", "eglCreateContext Error!");
+      return false;
+    }
+
+    int attribListPbuffer[] = {EGL_WIDTH, surface_width_, EGL_HEIGHT,
+                                surface_height_, EGL_NONE};
+
+    eglsurface = eglCreatePbufferSurface(
+            egldisplay, eglConfig, attribListPbuffer);
+    if (EGL_NO_SURFACE == eglsurface) {
+      Util::Log("ERROR", "eglCreatePbufferSurface Error!");
+      return false;
+    }
+
+    if (!eglQuerySurface(egldisplay, eglsurface,EGL_WIDTH, &surface_width_)
+      || !eglQuerySurface(egldisplay, eglsurface,EGL_HEIGHT, &surface_height_)) {
+      Util::Log("ERROR", "eglQuerySurface Error!");
+      return false;
+    }
+    Util::Log("INFO", "Create Surface width:%d height:%d", surface_width_, surface_width_);
+    return true;
+  }
+
+  bool makeCurrent() {
+    return eglMakeCurrent(egldisplay, eglsurface,eglsurface, eglcontext);
+  }
+
+  void destory() {
+    if (!inited_) {
+      return;
+    }
+    inited_ = false;
+    Util::Log("INFO", "destory");
+    if (egldisplay != EGL_NO_DISPLAY) {
+      if (eglcontext != EGL_NO_CONTEXT) {
+        eglDestroyContext(egldisplay, eglcontext);
+      }
+      if (eglsurface != EGL_NO_SURFACE) {
+        eglDestroySurface(egldisplay, eglsurface);
+      }
+
+      eglMakeCurrent(egldisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+      if (!eglTerminate(egldisplay)) {
+        Util::Log("ERROR", "Free egldisplay Error!");
+      }
+    }
+  }
+};
+
 #elif defined(GPUPIXEL_WIN) || defined(GPUPIXEL_LINUX)
 const unsigned int VIEW_WIDTH = 1280;
 const unsigned int VIEW_HEIGHT = 720;
-
 #endif
 
 GPUPixelContext* GPUPixelContext::_instance = 0;
@@ -113,6 +212,7 @@ GPUPixelContext* GPUPixelContext::getInstance() {
 };
 
 void GPUPixelContext::destroy() {
+  std::unique_lock<std::mutex> lock(_mutex);
   if (_instance) {
     delete _instance;
     _instance = 0;
@@ -172,80 +272,8 @@ void GPUPixelContext::createContext() {
 
 #elif defined(GPUPIXEL_ANDROID)
   Util::Log("INFO", "GPUPixelContext::createContext start");
-  context_inited = true;
-  m_surfacewidth = 1;
-  m_surfaceheight = 1;  // no use
-  m_gpu_context = new _gpu_context_t;
-  memset(m_gpu_context, 0, sizeof(_gpu_context_t));
-  m_gpu_context->egldisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-  if (EGL_NO_DISPLAY == m_gpu_context->egldisplay) {
-    // err_log("eglGetDisplay Error!");
-    Util::Log("ERROR", "eglGetDisplay Error!");
-    return;
-  }
-
-  GLint majorVersion;
-  GLint minorVersion;
-  if (!eglInitialize(m_gpu_context->egldisplay, &majorVersion, &minorVersion)) {
-    // err_log("eglInitialize Error!");
-    Util::Log("ERROR", "eglInitialize Error!");
-    return;
-  }
-  // info_log("GL Version minor:%d major:%d", minorVersion, majorVersion);
-
-  // 如果创建WindowSurface使用EGL_WINDOW_BIT，PBufferSurface使用EGL_PBUFFER_BIT
-  EGLint config_attribs[] = {EGL_BLUE_SIZE,
-                             8,
-                             EGL_GREEN_SIZE,
-                             8,
-                             EGL_RED_SIZE,
-                             8,
-                             EGL_RENDERABLE_TYPE,
-                             EGL_OPENGL_ES2_BIT,
-                             EGL_SURFACE_TYPE,
-                             EGL_PBUFFER_BIT,
-                             EGL_NONE};
-
-  int num_configs = 0;
-  EGLConfig eglConfig;
-  if (!eglChooseConfig(m_gpu_context->egldisplay, config_attribs, &eglConfig, 1,
-                       &num_configs)) {
-    // err_log("eglChooseConfig Error!");
-    Util::Log("ERROR", "eglChooseConfig Error!");
-    return;
-  }
-
-  EGLint context_attrib[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
-  m_gpu_context->eglcontext = eglCreateContext(
-      m_gpu_context->egldisplay, eglConfig, EGL_NO_CONTEXT, context_attrib);
-  if (EGL_NO_CONTEXT == m_gpu_context->eglcontext) {
-    // err_log("eglCreateContext Error!");
-    Util::Log("ERROR", "eglCreateContext Error!");
-    return;
-  }
-
-  int attribListPbuffer[] = {EGL_WIDTH, m_surfacewidth, EGL_HEIGHT,
-                             m_surfaceheight, EGL_NONE};
-
-  m_gpu_context->eglsurface = eglCreatePbufferSurface(
-      m_gpu_context->egldisplay, eglConfig, attribListPbuffer);
-  if (EGL_NO_SURFACE == m_gpu_context->eglsurface) {
-    // err_log("eglCreatePbufferSurface Error!");
-    Util::Log("ERROR", "eglCreatePbufferSurface Error!");
-    return;
-  }
-
-  if (!eglQuerySurface(m_gpu_context->egldisplay, m_gpu_context->eglsurface,
-                       EGL_WIDTH, &m_surfacewidth) ||
-      !eglQuerySurface(m_gpu_context->egldisplay, m_gpu_context->eglsurface,
-                       EGL_HEIGHT, &m_surfaceheight)) {
-    // err_log("eglQuerySurface Error!");
-    Util::Log("ERROR", "eglQuerySurface Error!");
-    return;
-  }
-  // info_log("Create Surface width:%d height:%d", m_surfacewidth,
-  // m_surfaceheight);
-  Util::Log("INFO", "Create Surface width:%d height:%d", m_surfacewidth, m_surfaceheight);
+  gl_context_ = new GpuContext();
+  gl_context_->create();
 #elif defined(GPUPIXEL_WIN) || defined(GPUPIXEL_LINUX)
   int ret = glfwInit();
 
@@ -283,9 +311,7 @@ void GPUPixelContext::useAsCurrent() {
       [imageProcessingContext makeCurrentContext];
     }
 #elif defined(GPUPIXEL_ANDROID)
-  if (!eglMakeCurrent(m_gpu_context->egldisplay, m_gpu_context->eglsurface,
-                      m_gpu_context->eglsurface, m_gpu_context->eglcontext)) {
-    // err_log("Set Current Context Error.");
+  if (!gl_context_->makeCurrent()) {
     Util::Log("ERROR", "Set Current Context Error!");
   }
 #elif defined(GPUPIXEL_WIN) || defined(GPUPIXEL_LINUX)
@@ -310,28 +336,9 @@ void GPUPixelContext::releaseContext() {
   }
   glfwTerminate();
 #elif defined(GPUPIXEL_ANDROID)
-  if (!context_inited) {
-    return;
-  }
-  context_inited = false;
-  if (m_gpu_context != nullptr && m_gpu_context->egldisplay != EGL_NO_DISPLAY) {
-    if (m_gpu_context->eglcontext != EGL_NO_CONTEXT) {
-      eglDestroyContext(m_gpu_context->egldisplay, m_gpu_context->eglcontext);
-    }
-    if (m_gpu_context->eglsurface != EGL_NO_SURFACE) {
-      eglDestroySurface(m_gpu_context->egldisplay, m_gpu_context->eglsurface);
-    }
-
-    eglMakeCurrent(m_gpu_context->egldisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-    if (!eglTerminate(m_gpu_context->egldisplay)) {
-      // err_log("Free egldisplay error!");
-      Util::Log("ERROR", "Free egldisplay Error!");
-    }
-  }
-
-  if (m_gpu_context != nullptr) {
-    delete m_gpu_context;
-    m_gpu_context = nullptr;
+  if (gl_context_ != nullptr) {
+    delete gl_context_;
+    gl_context_ = nullptr;
   }
 #endif
 }
