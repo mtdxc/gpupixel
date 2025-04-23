@@ -44,9 +44,13 @@ public class GPUPixelRenderer implements Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        runAll(mPreDrawQueue);
-        runAll(mDrawQueue);
-        runAll(mPostDrawQueue);
+        try {
+            runAll(mPreDrawQueue);
+            runAll(mDrawQueue);
+            runAll(mPostDrawQueue);    
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void runAll(Queue<Runnable> queue) {

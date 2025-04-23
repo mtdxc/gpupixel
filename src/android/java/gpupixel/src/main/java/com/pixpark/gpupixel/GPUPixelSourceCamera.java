@@ -44,6 +44,7 @@ public class GPUPixelSourceCamera extends GPUPixelSource implements Camera.Previ
 
     @Override
     public void onPreviewFrame(final byte[] data, Camera camera) {
+        try{
         final Camera.Size previewSize = camera.getParameters().getPreviewSize();
         if (mRGBABuffer == null) {
             mRGBABuffer = IntBuffer.allocate(previewSize.width * previewSize.height);
@@ -62,6 +63,8 @@ public class GPUPixelSourceCamera extends GPUPixelSource implements Camera.Previ
             }
         });
         proceed(true, true);
+        } catch (Exception e) {
+        }
     }
 
     public void onResume() {

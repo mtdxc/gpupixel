@@ -12,7 +12,7 @@ import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.widget.FrameLayout;
-
+import android.util.Log;
 
 public class GPUPixelView extends FrameLayout implements GPUPixelTarget {
     static final int FillModeStretch = 0;                   // Stretch to fill the view, and may distort the image
@@ -21,7 +21,7 @@ public class GPUPixelView extends FrameLayout implements GPUPixelTarget {
 
     protected long mNativeClassID = 0;
 
-    private GLSurfaceView mGLSurfaceView;
+    public GLSurfaceView mGLSurfaceView;
 
     public GPUPixelView(Context context) {
         super(context);
@@ -126,11 +126,13 @@ public class GPUPixelView extends FrameLayout implements GPUPixelTarget {
 
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
+            Log.i("GPUPixel", "surfaceCreated: " + holder.getSurface());
             super.surfaceCreated(holder);
         }
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+            Log.i("GPUPixel", String.format("surfaceChanged: %dx%d", w, h));
             super.surfaceChanged(holder, format, w, h);
             // 通知c++层大小变化了
             host.onSurfaceSizeChanged(w, h);
@@ -138,6 +140,7 @@ public class GPUPixelView extends FrameLayout implements GPUPixelTarget {
 
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
+            Log.i("GPUPixel", "surfaceDestroyed: " + holder.getSurface());
             super.surfaceDestroyed(holder);
         }
     }
