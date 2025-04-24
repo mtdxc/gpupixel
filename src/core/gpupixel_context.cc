@@ -289,16 +289,14 @@ void GPUPixelContext::PresentBufferForDisplay() {
   // No implementation needed
 #elif defined(GPUPIXEL_ANDROID)
   // For offscreen rendering, no need to swap buffers
-  // If display to screen is needed, use eglSwapBuffers(egl_display_,
-  // egl_surface_);
+  // If display to screen is needed, use eglSwapBuffers(egl_display_, egl_surface_);
 #endif
 }
 
 void GPUPixelContext::ReleaseContext() {
 #if defined(GPUPIXEL_ANDROID)
   if (egl_display_ != EGL_NO_DISPLAY) {
-    eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE,
-                   EGL_NO_CONTEXT);
+    eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
     if (egl_surface_ != EGL_NO_SURFACE) {
       eglDestroySurface(egl_display_, egl_surface_);

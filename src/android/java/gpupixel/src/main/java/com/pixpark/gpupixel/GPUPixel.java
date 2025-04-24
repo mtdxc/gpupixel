@@ -252,7 +252,7 @@ public class GPUPixel {
     }
 
     // JNI Native methods
-    private static native void nativeYUV420ToRGBA(ByteBuffer yBuffer, ByteBuffer uBuffer,
+    public static native void nativeYUV420ToRGBA(ByteBuffer yBuffer, ByteBuffer uBuffer,
             ByteBuffer vBuffer, int width, int height, int yRowStride, int uRowStride,
             int vRowStride, int yPixelStride, int uPixelStride, int vPixelStride, byte[] rgbaOut);
 

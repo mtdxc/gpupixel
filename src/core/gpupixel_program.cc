@@ -49,8 +49,7 @@ GPUPixelGLProgram* GPUPixelGLProgram::CreateWithShaderString(
     const std::string& fragment_shader_source) {
   GPUPixelGLProgram* ret = new (std::nothrow) GPUPixelGLProgram();
   if (ret) {
-    if (!ret->InitWithShaderString(vertex_shader_source,
-                                   fragment_shader_source)) {
+    if (!ret->InitWithShaderString(vertex_shader_source, fragment_shader_source)) {
       delete ret;
       ret = nullptr;
     }
@@ -84,8 +83,7 @@ bool GPUPixelGLProgram::InitWithShaderString(
 #else
 
 #endif
-    gpupixel::Util::Log(
-        "ERROR",
+    gpupixel::Util::Log("ERROR",
         "GL ERROR GPUPixelGLProgram::InitWithShaderString vertex shader %s",
         messages);
     return -1;
@@ -106,8 +104,7 @@ bool GPUPixelGLProgram::InitWithShaderString(
 #else
 
 #endif
-    gpupixel::Util::Log(
-        "ERROR",
+    gpupixel::Util::Log("ERROR",
         "GL ERROR GPUPixelGLProgram::InitWithShaderString frag shader %s",
         messages);
     return -1;

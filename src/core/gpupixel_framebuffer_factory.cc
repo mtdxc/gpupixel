@@ -22,25 +22,20 @@ std::shared_ptr<GPUPixelFramebuffer> FramebufferFactory::CreateFramebuffer(
     bool only_texture /* = false*/,
     const TextureAttributes texture_attributes /* = defaultTextureAttribure*/) {
   std::shared_ptr<GPUPixelFramebuffer> framebuffer_from_cache;
-  std::string lookup_hash =
-      GenerateUuid(width, height, only_texture, texture_attributes);
+  std::string lookup_hash = GenerateUuid(width, height, only_texture, texture_attributes);
   int number_of_matching_framebuffers = 0;
-  if (framebuffer_type_counts_.find(lookup_hash) !=
-      framebuffer_type_counts_.end()) {
-    number_of_matching_framebuffers = framebuffer_type_counts_[lookup_hash];
+  auto itc = framebuffer_type_counts_.find(lookup_hash);
+  if (itc != framebuffer_type_counts_.end()) {
+    number_of_matching_framebuffers = itc->second;
   }
-  if (number_of_matching_framebuffers < 1) {
-    framebuffer_from_cache =
-        std::shared_ptr<GPUPixelFramebuffer>(new GPUPixelFramebuffer(
-            width, height, only_texture, texture_attributes));
-  } else {
+  
+  if (number_of_matching_framebuffers > 0) {
     int cur_framebuffer_id = number_of_matching_framebuffers - 1;
     while (!framebuffer_from_cache && cur_framebuffer_id >= 0) {
-      std::string framebuffer_hash =
-          Util::StringFormat("%s-%ld", lookup_hash.c_str(), cur_framebuffer_id);
-      if (framebuffers_.find(framebuffer_hash) != framebuffers_.end()) {
-        framebuffer_from_cache = framebuffers_[framebuffer_hash];
-        framebuffers_.erase(framebuffer_hash);
+      auto it = framebuffers_.find(Util::StringFormat("%s-%ld", lookup_hash.c_str(), cur_framebuffer_id));
+      if (it != framebuffers_.end()) {
+        framebuffer_from_cache = it->second;
+        framebuffers_.erase(it);
       } else {
         framebuffer_from_cache = 0;
       }
@@ -48,12 +43,11 @@ std::shared_ptr<GPUPixelFramebuffer> FramebufferFactory::CreateFramebuffer(
     }
     cur_framebuffer_id++;
     framebuffer_type_counts_[lookup_hash] = cur_framebuffer_id;
+  }
 
-    if (!framebuffer_from_cache) {
-      framebuffer_from_cache =
-          std::shared_ptr<GPUPixelFramebuffer>(new GPUPixelFramebuffer(
-              width, height, only_texture, texture_attributes));
-    }
+  if (!framebuffer_from_cache) {
+    framebuffer_from_cache = std::make_shared<GPUPixelFramebuffer>(
+            width, height, only_texture, texture_attributes);
   }
 
   return framebuffer_from_cache;
