@@ -58,7 +58,6 @@ class GPUPIXEL_API GPUPixelFramebuffer {
   void GenerateTexture();
   void GenerateFramebuffer();
 
-  //    static std::vector<std::shared_ptr<GPUPixelFramebuffer>> framebuffers_;
 };
 
 }  // namespace gpupixel
