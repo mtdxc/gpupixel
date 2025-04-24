@@ -11,8 +11,7 @@ using namespace gpupixel;
 
 // Create new SourceRawData instance
 extern "C" JNIEXPORT jlong JNICALL
-Java_com_pixpark_gpupixel_GPUPixelSourceRawData_nativeCreate(JNIEnv* env,
-                                                             jclass clazz) {
+Java_com_pixpark_gpupixel_GPUPixelSourceRawData_nativeCreate(JNIEnv* env, jclass clazz) {
   auto source_raw_data = SourceRawData::Create();
   if (!source_raw_data) {
     return 0;

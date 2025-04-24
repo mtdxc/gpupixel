@@ -13,8 +13,6 @@
 
 namespace gpupixel {
 
-// std::vector<std::shared_ptr<GPUPixelFramebuffer>>
-// GPUPixelFramebuffer::framebuffers_;
 #ifndef GPUPIXEL_WIN
 TextureAttributes GPUPixelFramebuffer::default_texture_attributes = {
     .minFilter = GL_LINEAR,
@@ -29,12 +27,10 @@ TextureAttributes GPUPixelFramebuffer::default_texture_attributes = {
     GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE,
     GL_RGBA,   GL_RGBA,   GL_UNSIGNED_BYTE};
 #endif
-GPUPixelFramebuffer::GPUPixelFramebuffer(
-    int width,
-    int height,
+
+GPUPixelFramebuffer::GPUPixelFramebuffer(int width, int height,
     bool only_generate_texture /* = false*/,
-    const TextureAttributes
-        texture_attributes /* = default_texture_attributes*/)
+    const TextureAttributes texture_attributes)
     : texture_(-1), framebuffer_(-1) {
   width_ = width;
   height_ = height;
