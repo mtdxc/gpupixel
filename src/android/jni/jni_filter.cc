@@ -57,7 +57,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativ
 };
 
 // Set float property for filter
-extern "C" JNIEXPORT void JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativeFilterSetPropertyFloat(
+extern "C" JNIEXPORT bool JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativeFilterSetPropertyFloat(
     JNIEnv* env,
     jclass obj,
     jlong classId,
@@ -65,16 +65,17 @@ extern "C" JNIEXPORT void JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativ
     jfloat value) {
   auto* ptr = reinterpret_cast<std::shared_ptr<Filter>*>(classId);
   if (!ptr || !*ptr) {
-    return;
+    return false;
   }
 
   const char* property = env->GetStringUTFChars(jProperty, 0);
-  (*ptr)->SetProperty(property, value);
+  bool ret = (*ptr)->SetProperty(property, value);
   env->ReleaseStringUTFChars(jProperty, property);
+  return ret;
 };
 
 // Set int property for filter
-extern "C" JNIEXPORT void JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativeFilterSetPropertyInt(
+extern "C" JNIEXPORT bool JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativeFilterSetPropertyInt(
     JNIEnv* env,
     jclass obj,
     jlong classId,
@@ -82,16 +83,17 @@ extern "C" JNIEXPORT void JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativ
     jint value) {
   auto* ptr = reinterpret_cast<std::shared_ptr<Filter>*>(classId);
   if (!ptr || !*ptr) {
-    return;
+    return false;
   }
 
   const char* property = env->GetStringUTFChars(jProperty, 0);
-  (*ptr)->SetProperty(property, value);
+  bool ret = (*ptr)->SetProperty(property, value);
   env->ReleaseStringUTFChars(jProperty, property);
+  return ret;
 };
 
 // Set string property for filter
-extern "C" JNIEXPORT void JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativeFilterSetPropertyString(
+extern "C" JNIEXPORT bool JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativeFilterSetPropertyString(
     JNIEnv* env,
     jclass obj,
     jlong classId,
@@ -99,18 +101,19 @@ extern "C" JNIEXPORT void JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativ
     jstring jValue) {
   auto* ptr = reinterpret_cast<std::shared_ptr<Filter>*>(classId);
   if (!ptr || !*ptr) {
-    return;
+    return false;
   }
 
   const char* property = env->GetStringUTFChars(jProperty, 0);
   const char* value = env->GetStringUTFChars(jValue, 0);
-  (*ptr)->SetProperty(property, value);
+  bool ret = (*ptr)->SetProperty(property, value);
   env->ReleaseStringUTFChars(jProperty, property);
   env->ReleaseStringUTFChars(jValue, value);
+  return ret;
 };
 
 // Set float array property for filter
-extern "C" JNIEXPORT void JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativeFilterSetPropertyFloatArray(
+extern "C" JNIEXPORT bool JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativeFilterSetPropertyFloatArray(
     JNIEnv* env,
     jclass clazz,
     jlong class_id,
@@ -118,9 +121,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativ
     jfloatArray jarray) {
   auto* ptr = reinterpret_cast<std::shared_ptr<Filter>*>(class_id);
   if (!ptr || !*ptr) {
-    return;
+    return false;
   }
-
+  
   const char* property = env->GetStringUTFChars(jProperty, 0);
   jsize length = env->GetArrayLength(jarray);
 
@@ -131,9 +134,69 @@ extern "C" JNIEXPORT void JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativ
     vector.push_back(c_array[i]);
   }
 
-  (*ptr)->SetProperty(property, vector);
+  bool ret = (*ptr)->SetProperty(property, vector);
 
   env->ReleaseStringUTFChars(jProperty, property);
   // Release Java array memory
   env->ReleaseFloatArrayElements(jarray, c_array, JNI_ABORT);
+  return ret;
+}
+
+extern "C" JNIEXPORT bool JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativeFilterHasProperty(
+  JNIEnv* env,
+  jclass clazz,
+  jlong class_id,
+  jstring jProperty,
+  jstring jType) {
+  auto* ptr = reinterpret_cast<std::shared_ptr<Filter>*>(class_id);
+  if (!ptr || !*ptr) {
+    return false;
+  }
+  auto prop = JavaToStdString(env, jProperty);
+  auto type = JavaToStdString(env, jType);
+  return (*ptr)->HasProperty(prop, type);
+}
+
+extern "C" JNIEXPORT jstring JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativeFilterGetPropertyString(
+  JNIEnv* env,
+  jclass clazz,
+  jlong class_id,
+  jstring jProperty) {
+  auto* ptr = reinterpret_cast<std::shared_ptr<Filter>*>(class_id);
+  if (!ptr || !*ptr) {
+    return nullptr;
+  }
+  std::string ret,prop = JavaToStdString(env, jProperty);
+  (*ptr)->GetProperty(prop, ret);
+  return JavaStringFromStdString(env, ret);
+}
+
+extern "C" JNIEXPORT int JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativeFilterGetPropertyInt(
+  JNIEnv* env,
+  jclass clazz,
+  jlong class_id,
+  jstring jProperty) {
+  int ret = 0;
+  auto* ptr = reinterpret_cast<std::shared_ptr<Filter>*>(class_id);
+  if (!ptr || !*ptr) {
+    return ret;
+  }
+  auto prop = JavaToStdString(env, jProperty);
+  (*ptr)->GetProperty(prop, ret);
+  return ret;
+}
+
+extern "C" JNIEXPORT float JNICALL Java_com_pixpark_gpupixel_GPUPixelFilter_nativeFilterGetPropertyFloat(
+  JNIEnv* env,
+  jclass clazz,
+  jlong class_id,
+  jstring jProperty) {
+  float ret = 0;
+  auto* ptr = reinterpret_cast<std::shared_ptr<Filter>*>(class_id);
+  if (!ptr || !*ptr) {
+    return ret;
+  }
+  auto prop = JavaToStdString(env, jProperty);
+  (*ptr)->GetProperty(prop, ret);
+  return ret;
 }
