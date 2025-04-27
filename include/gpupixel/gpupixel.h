@@ -97,6 +97,9 @@ public:
      * @param root 根目录路径
      */
     static void SetResourceRoot(const std::string& root);
+
+    static int I420ToARGB(const uint8_t* yuv, uint8_t* argb, int width, int height, int rotation);
+    static int ARGBRotation(const uint8_t* src, uint8_t* dst, int width, int heihgt, int rotation);
 };
 
 }  // namespace gpupixel
