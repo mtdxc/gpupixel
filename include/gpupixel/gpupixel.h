@@ -85,11 +85,18 @@ namespace gpupixel {
  */
 class GPUPIXEL_API GPUPixel {
  public:
-  /**
-   * Set resource root directory
-   * @param root Root directory path
-   */
-  static void SetResourcePath(const std::string& path);
+    /**
+     * Set resource root directory
+     * @param root Root directory path
+     */
+    static void SetResourcePath(const std::string& path);
+
+    static int I420ToARGB(uint8_t* argb, int width, int height, 
+        const uint8_t* yuv_y, int stride_y = 0,
+        const uint8_t* yuv_u = nullptr, int stride_u = 0,
+        const uint8_t* yuv_v = nullptr, int stride_v = 0);
+    static int I420ToARGB(const uint8_t* yuv, uint8_t* argb, int width, int height, bool swapuv = false);
+    static int ARGBRotation(const uint8_t* src, uint8_t* dst, int width, int heihgt, int rotation);
 };
 
 }  // namespace gpupixel
