@@ -25,6 +25,23 @@ if(GPUPIXEL_ENABLE_FACE_DETECTOR)
         ${CMAKE_CURRENT_SOURCE_DIR}/mars-face-kit/libs/linux/libmars-face-kit.so
     )
 
+    # 设置要构建的目标库的名称和类型
+    add_library(vnn_kit SHARED IMPORTED)
+    # 设置目标库的实际路径
+    set_target_properties(vnn_kit PROPERTIES IMPORTED_LOCATION 
+    ${CMAKE_CURRENT_SOURCE_DIR}/vnn/libs/${CURRENT_OS}/libvnn_kit.so)
+
+    add_library(vnn_face SHARED IMPORTED)
+    # 设置目标库的实际路径
+    set_target_properties(vnn_face PROPERTIES IMPORTED_LOCATION
+    ${CMAKE_CURRENT_SOURCE_DIR}/vnn/libs/${CURRENT_OS}/libvnn_face.so)
+
+    add_library(vnn_core SHARED IMPORTED)
+    # 设置目标库的实际路径
+    set_target_properties(vnn_core PROPERTIES IMPORTED_LOCATION
+    ${CMAKE_CURRENT_SOURCE_DIR}/vnn/libs/${CURRENT_OS}/libvnn_core.so)
+
+  	#set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-rpath,./")
   elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     # macOS platform: static library .a
     add_library(marsface STATIC IMPORTED GLOBAL)
@@ -47,14 +64,21 @@ if(GPUPIXEL_ENABLE_FACE_DETECTOR)
   # ---- Library import properties ----
   # Configure how imported libraries are found and used
   if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    # Windows special handling: specify both .lib (IMPORTED_IMPLIB) and .dll
-    # (IMPORTED_LOCATION)
-    set_target_properties(
-      marsface
-      PROPERTIES IMPORTED_IMPLIB ${mars_import_lib_path} # .lib file for linking
-                 IMPORTED_LOCATION ${mars_shared_lib_path} # .dll file for
-                                                           # runtime
-                 INTERFACE_INCLUDE_DIRECTORIES ${mars_face_header})
+    # 设置要构建的目标库的名称和类型
+    add_library(vnn_kit SHARED IMPORTED)
+    # 设置目标库的实际路径
+    set_target_properties(vnn_kit PROPERTIES IMPORTED_IMPLIB
+    ${CMAKE_CURRENT_SOURCE_DIR}/vnn/libs/${CURRENT_OS}/x64/vnn_kit.lib)
+
+    add_library(vnn_core SHARED IMPORTED)
+    # 设置目标库的实际路径
+    set_target_properties(vnn_core PROPERTIES IMPORTED_IMPLIB
+    ${CMAKE_CURRENT_SOURCE_DIR}/vnn/libs/${CURRENT_OS}/x64/vnn_core.lib)
+
+    add_library(vnn_face SHARED IMPORTED)
+    # 设置目标库的实际路径
+    set_target_properties(vnn_face PROPERTIES IMPORTED_IMPLIB
+    ${CMAKE_CURRENT_SOURCE_DIR}/vnn/libs/${CURRENT_OS}/x64/vnn_face.lib)
   elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     set_target_properties(
       marsface PROPERTIES IMPORTED_LOCATION ${mars_shared_lib_path}

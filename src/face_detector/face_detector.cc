@@ -15,11 +15,26 @@
 
 namespace gpupixel {
 
+class FaceDetectorMars : public FaceDetector {
+ public:
+  static std::shared_ptr<FaceDetector> Create();
+  FaceDetectorMars();
+  std::vector<float> Detect(const uint8_t* data,
+                                        int width,
+                                        int height,
+                                        int stride,
+                                        GPUPIXEL_MODE_FMT fmt,
+                                        GPUPIXEL_FRAME_TYPE type) override;
+private:
+  std::shared_ptr<mars_vision::MarsFaceLandmarker> mars_face_detector_;
+};
+
 std::shared_ptr<FaceDetector> FaceDetector::Create() {
-  return std::shared_ptr<FaceDetector>(new FaceDetector());
+  return std::shared_ptr<FaceDetector>(new FaceDetectorMars());
 }
 
-FaceDetector::FaceDetector() {
+
+FaceDetectorMars::FaceDetectorMars() {
   auto path = Util::GetResourcePath() / "models";
 
   if (fs::exists(path)) {
@@ -36,7 +51,7 @@ FaceDetector::FaceDetector() {
   }
 }
 
-std::vector<float> FaceDetector::Detect(const uint8_t* data,
+std::vector<float> FaceDetectorMars::Detect(const uint8_t* data,
                                         int width,
                                         int height,
                                         int stride,

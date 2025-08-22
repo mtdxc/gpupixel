@@ -74,8 +74,12 @@ set(common_source_files
 
 # Add face detection source files based on options
 if(GPUPIXEL_ENABLE_FACE_DETECTOR)
-  list(APPEND common_source_files
-       ${CMAKE_CURRENT_SOURCE_DIR}/face_detector/face_detector.cc)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux|Windows")
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/vnn/include)
+  list(APPEND common_source_files ${CMAKE_CURRENT_SOURCE_DIR}/face_detector/face_detector_vnn.cc)
+else()
+  list(APPEND common_source_files ${CMAKE_CURRENT_SOURCE_DIR}/face_detector/face_detector.cc)
+endif()
 endif()
 
 set(objc_source_files ${CMAKE_CURRENT_SOURCE_DIR}/sink/sink_view.cc
@@ -439,10 +443,14 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
 endif()
 
 if(GPUPIXEL_ENABLE_FACE_DETECTOR)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux|Windows")
+  target_link_libraries(${gpupixel_libs_name} PRIVATE vnn_core vnn_face vnn_kit)
+else()
   target_link_libraries(${gpupixel_libs_name} PRIVATE marsface::marsface)
   if(APPLE)
     target_link_libraries(${gpupixel_libs_name} PRIVATE mnn)
   endif()
+endif()
 endif()
 
 if(GPUPIXEL_INSTALL)
